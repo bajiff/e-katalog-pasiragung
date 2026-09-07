@@ -1,3 +1,5 @@
+// src/pages/public/Login.jsx
+import { supabase } from '../../lib/supabase';
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -18,21 +20,34 @@ export function Login() {
     setLoading(true);
 
     try {
-      const { data, error: signInError } = await signIn(email, password);
+      // 1. Eksekusi Login Auth
+      const { data: authData, error: signInError } = await signIn(email, password);
 
       if (signInError) throw signInError;
 
-      // Note: We need to check profile status after login
-      // Since fetchProfile takes a tiny bit of time, we could check the user data if needed,
-      // but usually the protected route handles the redirect if not approved.
-      // We can also let the ProtectedRoute redirect them back here or handle it here explicitly.
-      // The context will update 'profile' asynchronously. Let's redirect to admin dashboard,
-      // the ProtectedRoute will boot them back if not approved.
+      // 2. TAHAN NAVIGASI! Ambil data profil dari database terlebih dahulu
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('status')
+        .eq('id', authData.user.id)
+        .single();
 
-      navigate('/admin/dashboard');
+      if (profileError || !profileData) {
+        throw new Error("Gagal mengambil data profil.");
+      }
+
+      // 3. Validasi status sebelum berpindah rute
+      if (profileData.status === 'approved') {
+        navigate('/admin/dashboard');
+      } else {
+        // Jika belum disetujui, batalkan sesi dan munculkan pesan error
+        await supabase.auth.signOut();
+        setError('Akun Anda belum disetujui oleh Super Admin.');
+      }
+
     } catch (err) {
       if (err.message.includes('Invalid login credentials')) {
-        setError('Email atau kata sandi salah, atau akun Anda belum disetujui.');
+        setError('Email atau kata sandi salah.');
       } else {
         setError(err.message);
       }
@@ -66,11 +81,13 @@ export function Login() {
 
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
-              <label className="block text-xs font-semibold text-text mb-1">
+              <label htmlFor="email" className="block text-xs font-semibold text-text mb-1">
                 Alamat Email
               </label>
               <div className="mt-1">
                 <input
+                  id="email"
+                  name="email"
                   type="email"
                   required
                   value={email}
@@ -81,11 +98,13 @@ export function Login() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-text mb-1">
+              <label htmlFor="password" className="block text-xs font-semibold text-text mb-1">
                 Kata Sandi
               </label>
               <div className="mt-1 relative">
                 <input
+                  id="password"
+                  name="password"
                   type={showPassword ? 'text' : 'password'}
                   required
                   value={password}
