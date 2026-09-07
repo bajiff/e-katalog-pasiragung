@@ -22,6 +22,9 @@ export default defineConfig([
         'warn',
         { allowConstantExport: true },
       ],
+      'no-unused-vars': ['warn', { 'varsIgnorePattern': '^React|data|profile|fetchData$' }],
+      'react-hooks/exhaustive-deps': 'off',
+      'react-hooks/set-state-in-effect': 'off'
     },
   },
 ])

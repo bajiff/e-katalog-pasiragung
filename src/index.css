@@ -1,1 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
 @import "tailwindcss";
+@config "../tailwind.config.js";
+
+:root {
+  --color-text: #171719;
+  --color-accent: #1ff98c;
+  --color-border: #171719;
+  --color-primary: #08ba61;
+  --color-surface: #ededed;
+  --color-background: #ffffff;
+  --color-on-primary: #ffffff;
+  --color-text-muted: #6b6b6d;
+
+  --radius-md: 25px;
+  --radius-sm: 9px;
+  --duration-fast: 300ms;
+  --duration-base: 650ms;
+  --duration-slow: 1200ms;
+  --easing-brand: cubic-bezier(0.14, 1, 0.34, 1);
+}
