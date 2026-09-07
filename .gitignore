@@ -25,6 +25,7 @@ dist-ssr
 *.sln
 *.sw?
 
-# File Anda
+# File/Folder Tambahan
 PLANNING.md
 PRD.md
+/ignore
