@@ -64,7 +64,7 @@ export const Navbar = () => {
   return (
     <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-base ${bgColor} h-16 md:h-20 flex items-center`}>
       <div className="container mx-auto px-4 flex items-center justify-between">
-        
+
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
           <img src="/src/assets/logo.svg" alt="Logo Pasiragung" className="h-10 w-auto" />
@@ -77,7 +77,7 @@ export const Navbar = () => {
         <div className="hidden md:flex items-center gap-6 lg:gap-8">
           <div className="flex items-center gap-6">
             {navLinks.map((link) => (
-              <a 
+              <a
                 key={link.href}
                 href={isHome ? `#${link.href}` : `/#${link.href}`}
                 onClick={(e) => handleAnchorClick(e, link.href)}
@@ -87,49 +87,67 @@ export const Navbar = () => {
               </a>
             ))}
           </div>
-          
+
           <div className="w-px h-6 bg-border mx-2"></div>
-          
-          <Link 
-            to="/login" 
+
+          <Link
+            to="/login"
+            className={`px-5 py-2 rounded-sm text-sm font-bold transition-colors hover:opacity-80 ${textColor}`}
+          >
+            Sign in
+          </Link>
+          <Link
+            to="/register"
             className={`px-5 py-2 rounded-sm text-sm font-bold transition-colors ${loginBg}`}
           >
-            Masuk Admin
+            Sign up
           </Link>
         </div>
 
         {/* Mobile Menu Toggle */}
-        <button 
-          className={`md:hidden p-2 transition-colors ${textColor}`}
+        <button
+          className={`md:hidden p-2 relative w-10 h-10 flex items-center justify-center transition-colors ${textColor}`}
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          aria-label="Toggle Menu"
         >
-          {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          <Menu className={`w-6 h-6 absolute transition-all duration-fast ${isMobileMenuOpen ? 'opacity-0 rotate-90 scale-50' : 'opacity-100 rotate-0 scale-100'}`} />
+          <X className={`w-6 h-6 absolute transition-all duration-fast ${isMobileMenuOpen ? 'opacity-100 rotate-0 scale-100' : 'opacity-0 -rotate-90 scale-50'}`} />
         </button>
 
       </div>
 
       {/* Mobile Drawer */}
-      {isMobileMenuOpen && (
-        <div className="absolute top-full left-0 w-full bg-background border-b border-border shadow-md py-4 px-4 flex flex-col gap-4 md:hidden">
-          {navLinks.map((link) => (
-            <a 
-              key={link.href}
-              href={isHome ? `#${link.href}` : `/#${link.href}`}
-              onClick={(e) => handleAnchorClick(e, link.href)}
-              className="text-sm font-semibold text-text py-2 border-b border-border hover:text-primary transition-colors"
-            >
-              {link.label}
-            </a>
-          ))}
-          <Link 
-            to="/login" 
-            className="w-full text-center px-4 py-3 mt-2 bg-primary text-on-primary rounded-sm text-sm font-bold hover:opacity-90 transition-opacity"
+      <div
+        className={`absolute top-full left-0 w-full bg-background border-b border-border shadow-md py-4 px-4 flex flex-col gap-4 md:hidden transition-all duration-base origin-top ${isMobileMenuOpen ? 'opacity-100 scale-y-100 visible' : 'opacity-0 scale-y-95 invisible pointer-events-none'
+          }`}
+      >
+        {navLinks.map((link) => (
+          <a
+            key={link.href}
+            href={isHome ? `#${link.href}` : `/#${link.href}`}
+            onClick={(e) => handleAnchorClick(e, link.href)}
+            className="text-sm font-semibold text-text py-2 border-b border-border hover:text-primary transition-colors"
+          >
+            {link.label}
+          </a>
+        ))}
+        <div className="flex flex-col gap-2 mt-2">
+          <Link
+            to="/login"
+            className="w-full text-center px-4 py-3 bg-surface text-text border border-border rounded-sm text-sm font-bold hover:bg-gray-100 transition-colors"
             onClick={() => setIsMobileMenuOpen(false)}
           >
-            Masuk Admin
+            Sign in
+          </Link>
+          <Link
+            to="/register"
+            className="w-full text-center px-4 py-3 bg-primary text-on-primary rounded-sm text-sm font-bold hover:opacity-90 transition-opacity"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            Sign up
           </Link>
         </div>
-      )}
+      </div>
     </nav>
   );
 };
