@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from './lib/supabase'
 
-function App() {
+const App = () => {
   const [categories, setCategories] = useState([])
 
   useEffect(() => {
