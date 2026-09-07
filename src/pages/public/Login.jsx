@@ -44,12 +44,10 @@ export function Login() {
   return (
     <div className="min-h-screen bg-surface flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="flex justify-center text-primary mb-6">
-          <Store className="w-12 h-12" />
+        <div className="flex justify-center mb-6">
+          <img src="/src/assets/logo.svg" alt="Logo Pasiragung" className="h-16 w-auto" />
         </div>
-        <h2 className="text-center text-3xl font-display font-bold text-text">
-          Masuk ke Dashboard
-        </h2>
+        <h2 className="text-2xl font-display font-bold text-center text-text mb-2">Masuk ke Admin</h2>
         <p className="mt-2 text-center text-sm font-body text-text-muted">
           Atau{' '}
           <Link to="/register" className="font-semibold text-primary hover:text-primary/80">

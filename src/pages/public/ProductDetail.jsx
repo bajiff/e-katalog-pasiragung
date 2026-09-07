@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { supabase } from '../../lib/supabase';
-import { Store, ArrowLeft } from 'lucide-react';
+import { ProductCard } from '../../components/shared';
 
 export function ProductDetail() {
+// ... existing imports ...
+
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [related, setRelated] = useState([]);
@@ -105,21 +104,9 @@ export function ProductDetail() {
       {related.length > 0 && (
         <section className="border-t border-border pt-12">
           <h2 className="text-2xl font-display font-bold text-text mb-6">Produk Serupa</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
             {related.map(item => (
-              <Link key={item.id} to={`/product/${item.id}`} className="group bg-background border border-border rounded-md overflow-hidden hover:shadow-lg transition-shadow">
-                <div className="aspect-square w-full bg-surface relative overflow-hidden">
-                  {item.image_path ? (
-                    <img src={item.image_path} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-text-muted text-xs">No Image</div>
-                  )}
-                </div>
-                <div className="p-4">
-                  <h3 className="font-display font-semibold text-base text-text mb-1 line-clamp-1">{item.name}</h3>
-                  <p className="font-body font-bold text-primary text-sm">Rp {item.price?.toLocaleString('id-ID')}</p>
-                </div>
-              </Link>
+              <ProductCard key={item.id} product={item} />
             ))}
           </div>
         </section>
