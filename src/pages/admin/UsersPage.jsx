@@ -1,10 +1,207 @@
-const UsersPage = () => {
-  return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Manajemen Pengguna (Super Admin)</h1>
-      <p className="text-gray-600">Approve/reject pendaftaran admin desa dan kelola akun pengguna.</p>
-    </div>
-  )
-}
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../../lib/supabase';
+import { useTableQuery } from '../../hooks/useTableQuery';
+import { 
+  DataTable, 
+  TableToolbar, 
+  Pagination, 
+  SelectAllCheckbox, 
+  BulkActionBar 
+} from '../../components/table';
+import { Trash2, CheckCircle, XCircle } from 'lucide-react';
 
-export default UsersPage
+const sortOptions = [
+  { value: 'newest', label: 'Terbaru' },
+  { value: 'oldest', label: 'Terlama' },
+  { value: 'name_asc', label: 'Nama A-Z' },
+  { value: 'name_desc', label: 'Nama Z-A' },
+  { value: 'number', label: 'Nomor Urut' },
+];
+
+export function UsersPage() {
+  const {
+    search, setSearch, sort, setSort, page, setPage, pageSize, setPageSize,
+    selectedIds, setSelectedIds, statusFilter, setStatusFilter, fetchData
+  } = useTableQuery('profiles', {
+    defaultSort: 'newest',
+    searchColumn: 'name'
+  });
+
+  const [data, setData] = useState([]);
+  const [totalItems, setTotalItems] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  const loadData = async () => {
+    setLoading(true);
+    const { data: result, count } = await fetchData();
+    setData(result || []);
+    setTotalItems(count || 0);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    loadData();
+  }, [search, sort, page, pageSize, statusFilter, fetchData]);
+
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
+      setSelectedIds(data.map(item => item.id));
+    } else {
+      setSelectedIds([]);
+    }
+  };
+
+  const handleSelectOne = (id) => {
+    setSelectedIds(prev => 
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
+
+  const handleDelete = async (item) => {
+    if (item.role === 'super_admin') {
+      alert('Tidak dapat menghapus super_admin.');
+      return;
+    }
+    if (!window.confirm('Yakin ingin menghapus user ini?')) return;
+    
+    await supabase.from('profiles').delete().eq('id', item.id);
+    setSelectedIds(selectedIds.filter(i => i !== item.id));
+    loadData();
+  };
+
+  const handleBulkDelete = async () => {
+    const itemsToDelete = data.filter(d => selectedIds.includes(d.id));
+    const invalidItems = itemsToDelete.filter(d => d.role === 'super_admin');
+    
+    if (invalidItems.length > 0) {
+      alert('Terdapat super_admin yang tidak bisa dihapus.');
+      return;
+    }
+
+    if (!window.confirm(`Yakin menghapus ${selectedIds.length} user?`)) return;
+    
+    await supabase.from('profiles').delete().in('id', selectedIds);
+    setSelectedIds([]);
+    loadData();
+  };
+
+  const updateStatus = async (id, status) => {
+    await supabase.from('profiles').update({ status }).eq('id', id);
+    loadData();
+  };
+
+  const isAllSelected = data.length > 0 && selectedIds.length === data.length;
+  const isIndeterminate = selectedIds.length > 0 && selectedIds.length < data.length;
+
+  const columns = [
+    <SelectAllCheckbox 
+      isAllSelected={isAllSelected} 
+      isIndeterminate={isIndeterminate} 
+      onChange={handleSelectAll} 
+    />,
+    'No',
+    'Nama',
+    'Email',
+    'Role',
+    'Status',
+    'Aksi'
+  ];
+
+  const renderRow = (item, idx) => {
+    const isSuperAdmin = item.role === 'super_admin';
+
+    return (
+      <tr key={item.id} className="hover:bg-surface/50 transition-colors">
+        <td className="px-3 py-2">
+          <input 
+            type="checkbox" 
+            checked={selectedIds.includes(item.id)}
+            onChange={() => handleSelectOne(item.id)}
+            disabled={isSuperAdmin}
+            className="w-3.5 h-3.5 accent-primary cursor-pointer disabled:opacity-50"
+          />
+        </td>
+        <td className="px-3 py-2 text-xs text-text-muted">{(page - 1) * (pageSize === 'all' ? totalItems : pageSize) + idx + 1}</td>
+        <td className="px-3 py-2 text-xs font-semibold text-text">{item.name}</td>
+        <td className="px-3 py-2 text-xs text-text-muted">{item.email || '-'}</td>
+        <td className="px-3 py-2 text-xs capitalize text-text-muted">{item.role?.replace('_', ' ')}</td>
+        <td className="px-3 py-2 text-xs">
+          <span className={`px-2 py-1 rounded-sm font-semibold ${
+            item.status === 'approved' ? 'bg-green-100 text-green-700' :
+            item.status === 'rejected' ? 'bg-red-100 text-red-700' :
+            'bg-yellow-100 text-yellow-700'
+          }`}>
+            {item.status}
+          </span>
+        </td>
+        <td className="px-3 py-2">
+          {!isSuperAdmin && (
+            <div className="flex items-center gap-2">
+              {item.status !== 'approved' && (
+                <button 
+                  onClick={() => updateStatus(item.id, 'approved')} 
+                  title="Approve"
+                  className="p-1.5 text-green-600 hover:bg-green-50 rounded-sm transition-colors"
+                >
+                  <CheckCircle className="w-3.5 h-3.5" />
+                </button>
+              )}
+              {item.status !== 'rejected' && (
+                <button 
+                  onClick={() => updateStatus(item.id, 'rejected')} 
+                  title="Reject"
+                  className="p-1.5 text-orange-600 hover:bg-orange-50 rounded-sm transition-colors"
+                >
+                  <XCircle className="w-3.5 h-3.5" />
+                </button>
+              )}
+              <button 
+                onClick={() => handleDelete(item)} 
+                title="Hapus User"
+                className="p-1.5 text-red-600 hover:bg-red-50 rounded-sm transition-colors"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
+        </td>
+      </tr>
+    );
+  };
+
+  return (
+    <div>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+        <div>
+          <h1 className="text-2xl font-display font-bold text-text">Manajemen Pengguna</h1>
+          <p className="text-sm font-body text-text-muted">Persetujuan admin baru oleh Super Admin.</p>
+        </div>
+        
+        <select 
+          value={statusFilter} 
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="border border-border rounded-sm px-3 py-2 text-xs bg-background outline-none min-w-[150px]"
+        >
+          <option value="all">Semua Status</option>
+          <option value="pending">Pending</option>
+          <option value="approved">Approved</option>
+          <option value="rejected">Rejected</option>
+        </select>
+      </div>
+
+      <div className="bg-background border border-border rounded-md p-4">
+        <TableToolbar 
+          search={search} setSearch={setSearch} 
+          sort={sort} setSort={setSort} sortOptions={sortOptions}
+          pageSize={pageSize} setPageSize={setPageSize}
+        />
+
+        <BulkActionBar selectedCount={selectedIds.length} onDelete={handleBulkDelete} />
+
+        <DataTable columns={columns} data={data} renderRow={renderRow} loading={loading} />
+
+        <Pagination page={page} setPage={setPage} totalItems={totalItems} pageSize={pageSize} />
+      </div>
+    </div>
+  );
+}

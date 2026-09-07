@@ -1,6 +1,6 @@
-export { default as DashboardPage } from './DashboardPage'
-export { default as ProductsPage } from './ProductsPage'
-export { default as CategoriesPage } from './CategoriesPage'
-export { default as OwnersPage } from './OwnersPage'
-export { default as ProfilePage } from './ProfilePage'
-export { default as UsersPage } from './UsersPage'
+export * from './DashboardPage';
+export * from './ProductsPage';
+export * from './CategoriesPage';
+export * from './OwnersPage';
+export * from './UsersPage';
+export * from './ProfilePage';
