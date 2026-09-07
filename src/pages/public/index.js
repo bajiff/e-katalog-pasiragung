@@ -1,5 +1,5 @@
-export { default as Home } from './Home'
-export { default as ProductDetail } from './ProductDetail'
-export { default as OwnerProfile } from './OwnerProfile'
-export { default as Login } from './Login'
-export { default as Register } from './Register'
+export * from './Home';
+export * from './ProductDetail';
+export * from './OwnerProfile';
+export * from './Login';
+export * from './Register';
