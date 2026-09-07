@@ -11,9 +11,7 @@ export const MapSection = () => {
           title="Lokasi Desa Pasiragung" 
           subtitle="Kunjungi kami dan rasakan keramahan warga desa secara langsung."
         />
-        <div className="w-full h-[250px] sm:h-[300px] md:h-[400px]">
-          <MapEmbed embedUrl={mapEmbedUrl} title="Peta Desa Pasiragung" />
-        </div>
+        <MapEmbed embedUrl={mapEmbedUrl} title="Peta Desa Pasiragung" />
       </div>
     </section>
   );

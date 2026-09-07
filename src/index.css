@@ -4,6 +4,7 @@
 @config "../tailwind.config.js";
 
 :root {
+  scroll-behavior: smooth;
   --color-text: #171719;
   --color-accent: #1ff98c;
   --color-border: #171719;

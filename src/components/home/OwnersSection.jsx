@@ -44,7 +44,7 @@ export const OwnersSection = () => {
         ) : owners.length === 0 ? (
           <div className="py-12 text-center text-text-muted font-body">Tidak ada pemilik usaha ditemukan.</div>
         ) : (
-          <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 hide-scrollbar">
+          <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 hide-scrollbar scroll-smooth">
             {owners.map(owner => (
               <div key={owner.id} className="snap-start shrink-0 w-[160px] sm:w-[200px]">
                 <OwnerCard owner={owner} />
