@@ -1,3 +1,4 @@
+// src/App.jsx
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { ProtectedRoute, SuperAdminRoute } from './routes'
 import { AdminLayout, PublicLayout } from './components/layout'
@@ -38,7 +39,7 @@ const App = () => {
           <Route path="categories" element={<CategoriesPage />} />
           <Route path="owners" element={<OwnersPage />} />
           <Route path="profile" element={<ProfilePage />} />
-          
+
           {/* Khusus Super Admin */}
           <Route path="users" element={<SuperAdminRoute><UsersPage /></SuperAdminRoute>} />
         </Route>

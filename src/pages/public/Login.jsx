@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Store, Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 
 export function Login() {
   const { signIn, profile } = useAuth();
@@ -19,7 +19,7 @@ export function Login() {
 
     try {
       const { data, error: signInError } = await signIn(email, password);
-      
+
       if (signInError) throw signInError;
 
       // Note: We need to check profile status after login
@@ -28,7 +28,7 @@ export function Login() {
       // We can also let the ProtectedRoute redirect them back here or handle it here explicitly.
       // The context will update 'profile' asynchronously. Let's redirect to admin dashboard,
       // the ProtectedRoute will boot them back if not approved.
-      
+
       navigate('/admin/dashboard');
     } catch (err) {
       if (err.message.includes('Invalid login credentials')) {
@@ -112,7 +112,7 @@ export function Login() {
               </button>
             </div>
           </form>
-          
+
           <div className="mt-6">
             <Link to="/" className="w-full flex justify-center py-2 px-4 border border-border rounded-sm text-sm font-semibold text-text bg-surface hover:bg-gray-100 transition-colors">
               Kembali ke Beranda
