@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { ProtectedRoute, SuperAdminRoute } from './routes'
+import { AdminLayout, PublicLayout } from './components/layout'
 import {
   Home,
   ProductDetail,
@@ -18,23 +19,29 @@ const App = () => {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Rute Publik */}
-        <Route path="/" element={<Home />} />
-        <Route path="/product/:id" element={<ProductDetail />} />
-        <Route path="/owner/:id" element={<OwnerProfile />} />
+        {/* Rute Publik (dengan Layout) */}
+        <Route element={<PublicLayout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/product/:id" element={<ProductDetail />} />
+          <Route path="/owner/:id" element={<OwnerProfile />} />
+        </Route>
+
+        {/* Rute Auth (Tanpa Layout) */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* Rute Admin & Super Admin */}
-        <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
-        <Route path="/admin/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
-        <Route path="/admin/products" element={<ProtectedRoute><ProductsPage /></ProtectedRoute>} />
-        <Route path="/admin/categories" element={<ProtectedRoute><CategoriesPage /></ProtectedRoute>} />
-        <Route path="/admin/owners" element={<ProtectedRoute><OwnersPage /></ProtectedRoute>} />
-        <Route path="/admin/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
-
-        {/* Khusus Super Admin */}
-        <Route path="/admin/users" element={<SuperAdminRoute><UsersPage /></SuperAdminRoute>} />
+        {/* Rute Admin & Super Admin (dengan Layout) */}
+        <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard" element={<DashboardPage />} />
+          <Route path="products" element={<ProductsPage />} />
+          <Route path="categories" element={<CategoriesPage />} />
+          <Route path="owners" element={<OwnersPage />} />
+          <Route path="profile" element={<ProfilePage />} />
+          
+          {/* Khusus Super Admin */}
+          <Route path="users" element={<SuperAdminRoute><UsersPage /></SuperAdminRoute>} />
+        </Route>
 
         {/* Fallback 404 */}
         <Route path="*" element={<Navigate to="/" replace />} />
