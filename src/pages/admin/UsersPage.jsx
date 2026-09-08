@@ -82,7 +82,12 @@ export function UsersPage() {
       confirmText: 'Ya, Hapus',
       isDestructive: true,
       onConfirm: async () => {
-        await supabase.from('profiles').delete().eq('id', item.id);
+        const { error } = await supabase.from('profiles').delete().eq('id', item.id);
+        if (error) {
+          console.error("Gagal menghapus user:", error);
+          alert(`Gagal menghapus user: ${error.message || 'Terjadi kesalahan sistem'}`);
+          return;
+        }
         setSelectedIds(selectedIds.filter(i => i !== item.id));
         loadData();
       }
@@ -104,7 +109,12 @@ export function UsersPage() {
       confirmText: 'Ya, Hapus Semua',
       isDestructive: true,
       onConfirm: async () => {
-        await supabase.from('profiles').delete().in('id', selectedIds);
+        const { error } = await supabase.from('profiles').delete().in('id', selectedIds);
+        if (error) {
+          console.error("Gagal menghapus banyak user:", error);
+          alert(`Gagal menghapus user: ${error.message || 'Terjadi kesalahan sistem'}`);
+          return;
+        }
         setSelectedIds([]);
         loadData();
       }
@@ -119,7 +129,12 @@ export function UsersPage() {
       confirmText: isApprove ? 'Ya, Setujui' : 'Ya, Tolak',
       isDestructive: !isApprove,
       onConfirm: async () => {
-        await supabase.from('profiles').update({ status }).eq('id', id);
+        const { error } = await supabase.from('profiles').update({ status }).eq('id', id);
+        if (error) {
+          console.error("Gagal mengubah status:", error);
+          alert(`Gagal mengubah status user: ${error.message || 'Terjadi kesalahan sistem'}`);
+          return;
+        }
         loadData();
       }
     });
