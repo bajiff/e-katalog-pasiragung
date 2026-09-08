@@ -31,8 +31,15 @@ export const validateImageFile = (file) => {
 export const uploadImage = async (file, bucket) => {
   validateImageFile(file)
 
+  const generateId = () => {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+      return crypto.randomUUID();
+    }
+    return Date.now().toString(36) + Math.random().toString(36).substring(2);
+  };
+  
   const fileExt = file.name.split('.').pop()?.toLowerCase() || 'jpg'
-  const fileName = `${crypto.randomUUID()}.${fileExt}`
+  const fileName = `${generateId()}.${fileExt}`
 
   const { error: uploadError } = await supabase.storage
     .from(bucket)
