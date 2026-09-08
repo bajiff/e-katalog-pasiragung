@@ -131,7 +131,7 @@ Untuk carousel ringan tanpa dependency besar, gunakan CSS scroll-snap (tidak per
 ```jsx
 <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 scrollbar-hide">
   {owners.map(owner => (
-    <div key={owner.id} className="snap-start shrink-0 w-[160px] sm:w-[200px]">
+    <div key={owner.id} className="snap-start shrink-0 w-40 sm:w-50">
       <OwnerCard owner={owner} />
     </div>
   ))}
