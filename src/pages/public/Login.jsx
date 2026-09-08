@@ -6,7 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import { Eye, EyeOff } from 'lucide-react';
 
 export function Login() {
-  const { signIn, profile } = useAuth();
+  const { signIn } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -92,7 +92,7 @@ export function Login() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2 border border-border rounded-sm text-xs placeholder-text-muted focus:outline-none focus:border-primary transition-colors"
+                  className="appearance-none block w-full px-3 py-2 border rounded-sm text-xs placeholder-text-muted focus:outline-none focus:border-primary transition-colors"
                 />
               </div>
             </div>
@@ -109,7 +109,7 @@ export function Login() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2 border border-border rounded-sm text-xs placeholder-text-muted focus:outline-none focus:border-primary transition-colors pr-10"
+                  className="appearance-none block w-full px-3 py-2 border rounded-sm text-xs placeholder-text-muted focus:outline-none focus:border-primary transition-colors pr-10"
                 />
                 <button
                   type="button"
