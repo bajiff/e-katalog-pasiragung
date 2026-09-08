@@ -63,7 +63,7 @@ export const ProductsSection = () => {
         />
 
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-          <div className="flex overflow-x-auto w-full md:w-auto gap-2 pb-2 hide-scrollbar">
+          <div className="flex overflow-x-auto w-full flex-1 min-w-0 gap-2 pb-2 hide-scrollbar">
             <button 
               onClick={() => setActiveCategory('all')}
               className={`px-4 py-2 rounded-md whitespace-nowrap text-sm font-semibold transition-colors ${
@@ -85,7 +85,7 @@ export const ProductsSection = () => {
             ))}
           </div>
 
-          <div className="w-full md:w-72">
+          <div className="w-full md:w-72 shrink-0">
             <SearchInput 
               value={search} 
               onChange={(e) => setSearch(e.target.value)} 
