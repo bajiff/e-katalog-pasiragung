@@ -63,14 +63,11 @@ export const Navbar = () => {
 
   return (
     <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-base ${bgColor} h-16 md:h-20 flex items-center`}>
-      <div className="container mx-auto px-4 flex items-center justify-between">
+      <div className="container mx-auto px-4 flex items-center justify-center gap-5">
 
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
           <img src="/src/assets/logo.svg" alt="Logo Pasiragung" className="h-10 w-auto" />
-          <span className={`font-display font-bold text-xl md:text-2xl tracking-tight transition-colors ${logoColor}`}>
-            Katalog Pasiragung
-          </span>
         </Link>
 
         {/* Desktop Nav */}
