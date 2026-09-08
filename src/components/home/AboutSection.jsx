@@ -26,8 +26,8 @@ export const AboutSection = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-12">
           {/* Text Content */}
           <div className="order-2 md:order-1">
-            <SectionHeading 
-              title="Tentang Katalog Kami" 
+            <SectionHeading
+              title="Tentang Katalog Kami"
               subtitle="Mendukung Perekonomian Lokal Desa Pasiragung"
             />
             <div className="prose prose-sm text-text-muted font-body leading-relaxed">
@@ -39,17 +39,17 @@ export const AboutSection = () => {
               </p>
             </div>
           </div>
-          
+
           {/* Image Content */}
           <div className="order-1 md:order-2 rounded-lg overflow-hidden border border-border shadow-sm">
-            <img 
-              src={hero2Image} 
-              alt="Aktivitas Desa Pasiragung" 
-              className="w-full h-auto object-cover aspect-[4/3] md:aspect-auto" 
+            <img
+              src={hero2Image}
+              alt="Aktivitas Desa Pasiragung"
+              className="w-full h-auto object-cover aspect-4/3 md:aspect-auto"
             />
           </div>
         </div>
-        
+
         {/* Stats Card - Second Row */}
         <div className="bg-surface rounded-md border border-border p-8 text-center w-full max-w-3xl mx-auto shadow-sm">
           <h3 className="font-display font-bold text-xl md:text-2xl text-text mb-8">Bersama Membangun Desa</h3>

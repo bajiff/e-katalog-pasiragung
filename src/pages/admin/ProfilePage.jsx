@@ -36,7 +36,7 @@ export function ProfilePage() {
       onConfirm: async () => {
         setIsSaving(true);
         setMessage({ text: '', type: '' });
-        
+
         try {
           let avatar_url = profile?.avatar_url;
 
@@ -48,9 +48,9 @@ export function ProfilePage() {
           }
 
           const { error } = await supabase.from('profiles').update({ name, avatar_url }).eq('id', profile.id);
-          
+
           if (error) throw error;
-          
+
           setMessage({ text: 'Profil berhasil diperbarui. Refresh halaman untuk melihat perubahan pada topbar.', type: 'success' });
         } catch (error) {
           setMessage({ text: error.message, type: 'error' });
@@ -83,7 +83,7 @@ export function ProfilePage() {
 
         try {
           const { error } = await supabase.auth.updateUser({ password: newPassword });
-          
+
           if (error) throw error;
 
           setMessage({ text: 'Password berhasil diperbarui.', type: 'success' });
@@ -105,9 +105,8 @@ export function ProfilePage() {
       </div>
 
       {message.text && (
-        <div className={`mb-6 px-4 py-3 rounded-sm text-sm font-semibold border ${
-          message.type === 'success' ? 'bg-green-100 text-green-700 border-green-200' : 'bg-red-100 text-red-700 border-red-200'
-        }`}>
+        <div className={`mb-6 px-4 py-3 rounded-sm text-sm font-semibold border ${message.type === 'success' ? 'bg-green-100 text-green-700 border-green-200' : 'bg-red-100 text-red-700 border-red-200'
+          }`}>
           {message.text}
         </div>
       )}
@@ -130,10 +129,10 @@ export function ProfilePage() {
                 <input name="avatar" type="file" accept="image/jpeg, image/png, image/webp" className="w-full text-xs text-text-muted outline-none" />
               </div>
             </div>
-            
+
             <div>
               <label className="block text-xs font-semibold text-text mb-1">Nama Lengkap</label>
-              <input required defaultValue={profile?.name} name="name" type="text" className="w-full px-3 py-2 border border-border rounded-sm text-xs focus:border-primary outline-none" />
+              <input required defaultValue={profile?.name} name="name" type="text" className="w-full px-3 py-2 border border-border rounded-sm text-xs outline-none" />
             </div>
 
             <div>
@@ -158,12 +157,12 @@ export function ProfilePage() {
           <form onSubmit={handlePasswordSubmit} className="space-y-4">
             <div>
               <label className="block text-xs font-semibold text-text mb-1">Kata Sandi Baru</label>
-              <input required name="new_password" type="password" minLength={6} className="w-full px-3 py-2 border border-border rounded-sm text-xs focus:border-primary outline-none" />
+              <input required name="new_password" type="password" minLength={6} className="w-full px-3 py-2 border border-border rounded-sm text-xs  outline-none" />
             </div>
 
             <div>
               <label className="block text-xs font-semibold text-text mb-1">Konfirmasi Kata Sandi Baru</label>
-              <input required name="confirm_password" type="password" minLength={6} className="w-full px-3 py-2 border border-border rounded-sm text-xs focus:border-primary outline-none" />
+              <input required name="confirm_password" type="password" minLength={6} className="w-full px-3 py-2 border border-border rounded-sm text-xs  outline-none" />
             </div>
 
             <button type="submit" disabled={isPassSaving} className="w-full py-2 mt-2 text-xs font-semibold text-text bg-surface border border-border rounded-sm hover:bg-gray-200 transition-colors disabled:opacity-50">

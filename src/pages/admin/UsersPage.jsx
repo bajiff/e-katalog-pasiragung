@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useTableQuery } from '../../hooks/useTableQuery';
-import { 
-  DataTable, 
-  TableToolbar, 
-  Pagination, 
-  SelectAllCheckbox, 
-  BulkActionBar 
+import {
+  DataTable,
+  TableToolbar,
+  Pagination,
+  SelectAllCheckbox,
+  BulkActionBar
 } from '../../components/table';
 import { ConfirmModal } from '../../components/shared';
 import { Trash2, CheckCircle, XCircle } from 'lucide-react';
@@ -65,7 +65,7 @@ export function UsersPage() {
   };
 
   const handleSelectOne = (id) => {
-    setSelectedIds(prev => 
+    setSelectedIds(prev =>
       prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
     );
   };
@@ -75,7 +75,7 @@ export function UsersPage() {
       alert('Tidak dapat menghapus super_admin.');
       return;
     }
-    
+
     requestConfirm({
       title: 'Hapus User',
       message: 'Apakah Anda yakin ingin menghapus user ini?',
@@ -92,7 +92,7 @@ export function UsersPage() {
   const handleBulkDelete = () => {
     const itemsToDelete = data.filter(d => selectedIds.includes(d.id));
     const invalidItems = itemsToDelete.filter(d => d.role === 'super_admin');
-    
+
     if (invalidItems.length > 0) {
       alert('Terdapat super_admin yang tidak bisa dihapus.');
       return;
@@ -129,10 +129,10 @@ export function UsersPage() {
   const isIndeterminate = selectedIds.length > 0 && selectedIds.length < data.length;
 
   const columns = [
-    <SelectAllCheckbox 
-      isAllSelected={isAllSelected} 
-      isIndeterminate={isIndeterminate} 
-      onChange={handleSelectAll} 
+    <SelectAllCheckbox
+      isAllSelected={isAllSelected}
+      isIndeterminate={isIndeterminate}
+      onChange={handleSelectAll}
     />,
     'No',
     'Nama',
@@ -148,8 +148,8 @@ export function UsersPage() {
     return (
       <tr key={item.id} className="hover:bg-surface/50 transition-colors">
         <td className="px-3 py-2">
-          <input 
-            type="checkbox" 
+          <input
+            type="checkbox"
             checked={selectedIds.includes(item.id)}
             onChange={() => handleSelectOne(item.id)}
             disabled={isSuperAdmin}
@@ -161,11 +161,10 @@ export function UsersPage() {
         <td className="px-3 py-2 text-xs text-text-muted">{item.email || '-'}</td>
         <td className="px-3 py-2 text-xs capitalize text-text-muted">{item.role?.replace('_', ' ')}</td>
         <td className="px-3 py-2 text-xs">
-          <span className={`px-2 py-1 rounded-sm font-semibold ${
-            item.status === 'approved' ? 'bg-green-100 text-green-700' :
-            item.status === 'rejected' ? 'bg-red-100 text-red-700' :
-            'bg-yellow-100 text-yellow-700'
-          }`}>
+          <span className={`px-2 py-1 rounded-sm font-semibold ${item.status === 'approved' ? 'bg-green-100 text-green-700' :
+              item.status === 'rejected' ? 'bg-red-100 text-red-700' :
+                'bg-yellow-100 text-yellow-700'
+            }`}>
             {item.status}
           </span>
         </td>
@@ -173,8 +172,8 @@ export function UsersPage() {
           {!isSuperAdmin && (
             <div className="flex items-center gap-2">
               {item.status !== 'approved' && (
-                <button 
-                  onClick={() => updateStatus(item.id, 'approved')} 
+                <button
+                  onClick={() => updateStatus(item.id, 'approved')}
                   title="Approve"
                   className="p-1.5 text-green-600 hover:bg-green-50 rounded-sm transition-colors"
                 >
@@ -182,16 +181,16 @@ export function UsersPage() {
                 </button>
               )}
               {item.status !== 'rejected' && (
-                <button 
-                  onClick={() => updateStatus(item.id, 'rejected')} 
+                <button
+                  onClick={() => updateStatus(item.id, 'rejected')}
                   title="Reject"
                   className="p-1.5 text-orange-600 hover:bg-orange-50 rounded-sm transition-colors"
                 >
                   <XCircle className="w-3.5 h-3.5" />
                 </button>
               )}
-              <button 
-                onClick={() => handleDelete(item)} 
+              <button
+                onClick={() => handleDelete(item)}
                 title="Hapus User"
                 className="p-1.5 text-red-600 hover:bg-red-50 rounded-sm transition-colors"
               >
@@ -211,11 +210,11 @@ export function UsersPage() {
           <h1 className="text-2xl font-display font-bold text-text">Manajemen Pengguna</h1>
           <p className="text-sm font-body text-text-muted">Persetujuan admin baru oleh Super Admin.</p>
         </div>
-        
-        <select 
-          value={statusFilter} 
+
+        <select
+          value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="border border-border rounded-sm px-3 py-2 text-xs bg-background outline-none min-w-[150px]"
+          className="border border-border rounded-sm px-3 py-2 text-xs bg-background outline-none min-w-37.5"
         >
           <option value="all">Semua Status</option>
           <option value="pending">Pending</option>
@@ -225,8 +224,8 @@ export function UsersPage() {
       </div>
 
       <div className="bg-background border border-border rounded-md p-4">
-        <TableToolbar 
-          search={search} setSearch={setSearch} 
+        <TableToolbar
+          search={search} setSearch={setSearch}
           sort={sort} setSort={setSort} sortOptions={sortOptions}
           pageSize={pageSize} setPageSize={setPageSize}
         />
