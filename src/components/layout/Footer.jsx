@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Store, Phone, MapPin } from 'lucide-react';
+import logo from '../../assets/logo.svg';
 
 export const Footer = () => {
   const location = useLocation();
@@ -36,7 +37,7 @@ export const Footer = () => {
           {/* Kolom 1: Info */}
           <div>
             <Link to="/" className="inline-flex items-center gap-2 font-display font-bold text-xl text-primary mb-4">
-              <img src="/src/assets/logo.svg" alt="Logo Pasiragung" className="h-8 w-auto" />
+              <img src={logo} alt="Logo Pasiragung" className="h-8 w-auto" />
               Katalog Pasiragung
             </Link>
             <p className="text-sm font-body text-text-muted leading-relaxed">

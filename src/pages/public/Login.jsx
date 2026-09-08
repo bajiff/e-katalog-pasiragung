@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Eye, EyeOff } from 'lucide-react';
+import logo from '../../assets/logo.svg';
 
 export function Login() {
   const { signIn } = useAuth();
@@ -60,7 +61,7 @@ export function Login() {
     <div className="min-h-screen bg-surface flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center mb-6">
-          <img src="/src/assets/logo.svg" alt="Logo Pasiragung" className="h-16 w-auto" />
+          <img src={logo} alt="Logo Pasiragung" className="h-16 w-auto" />
         </div>
         <h2 className="text-2xl font-display font-bold text-center text-text mb-2">Masuk ke Admin</h2>
         <p className="mt-2 text-center text-sm font-body text-text-muted">

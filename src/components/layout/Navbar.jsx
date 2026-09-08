@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
+import logo from '../../assets/logo.svg';
 
 export const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -67,7 +68,7 @@ export const Navbar = () => {
 
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
-          <img src="/src/assets/logo.svg" alt="Logo Pasiragung" className="h-10 w-auto" />
+          <img src={logo} alt="Logo Pasiragung" className="h-10 w-auto" />
         </Link>
 
         {/* Desktop Nav */}
