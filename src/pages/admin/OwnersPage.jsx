@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useTableQuery } from '../../hooks/useTableQuery';
-import { 
-  DataTable, 
-  TableToolbar, 
-  Pagination, 
-  SelectAllCheckbox, 
-  BulkActionBar 
+import {
+  DataTable,
+  TableToolbar,
+  Pagination,
+  SelectAllCheckbox,
+  BulkActionBar
 } from '../../components/table';
 import { ConfirmModal } from '../../components/shared';
 import { Edit, Trash2, Plus, X } from 'lucide-react';
@@ -71,7 +71,7 @@ export function OwnersPage() {
   };
 
   const handleSelectOne = (id) => {
-    setSelectedIds(prev => 
+    setSelectedIds(prev =>
       prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
     );
   };
@@ -82,7 +82,7 @@ export function OwnersPage() {
       alert(`Tidak dapat menghapus owner ini karena masih memiliki ${productsCount} produk terkait.`);
       return;
     }
-    
+
     requestConfirm({
       title: 'Hapus Owner',
       message: 'Apakah Anda yakin ingin menghapus owner ini?',
@@ -102,7 +102,7 @@ export function OwnersPage() {
   const handleBulkDelete = () => {
     const itemsToDelete = data.filter(d => selectedIds.includes(d.id));
     const invalidItems = itemsToDelete.filter(d => (d.products?.[0]?.count || 0) > 0);
-    
+
     if (invalidItems.length > 0) {
       alert(`Terdapat ${invalidItems.length} owner yang tidak bisa dihapus karena masih memiliki produk terkait.`);
       return;
@@ -176,10 +176,10 @@ export function OwnersPage() {
   const isIndeterminate = selectedIds.length > 0 && selectedIds.length < data.length;
 
   const columns = [
-    <SelectAllCheckbox 
-      isAllSelected={isAllSelected} 
-      isIndeterminate={isIndeterminate} 
-      onChange={handleSelectAll} 
+    <SelectAllCheckbox
+      isAllSelected={isAllSelected}
+      isIndeterminate={isIndeterminate}
+      onChange={handleSelectAll}
     />,
     'No',
     'Foto',
@@ -196,8 +196,8 @@ export function OwnersPage() {
     return (
       <tr key={item.id} className="hover:bg-surface/50 transition-colors">
         <td className="px-3 py-2">
-          <input 
-            type="checkbox" 
+          <input
+            type="checkbox"
             checked={selectedIds.includes(item.id)}
             onChange={() => handleSelectOne(item.id)}
             className="w-3.5 h-3.5 accent-primary cursor-pointer"
@@ -219,8 +219,8 @@ export function OwnersPage() {
             <button onClick={() => openModal(item)} className="p-1.5 text-primary hover:bg-primary/10 rounded-sm transition-colors">
               <Edit className="w-3.5 h-3.5" />
             </button>
-            <button 
-              onClick={() => handleDelete(item)} 
+            <button
+              onClick={() => handleDelete(item)}
               disabled={!canDelete}
               title={!canDelete ? "Owner ini masih memiliki produk" : ""}
               className={`p-1.5 rounded-sm transition-colors ${canDelete ? 'text-red-600 hover:bg-red-50' : 'text-gray-400 cursor-not-allowed'}`}
@@ -240,7 +240,7 @@ export function OwnersPage() {
           <h1 className="text-2xl font-display font-bold text-text">Manajemen Pemilik Usaha</h1>
           <p className="text-sm font-body text-text-muted">Daftar pemilik UMKM di Desa Pasiragung.</p>
         </div>
-        <button 
+        <button
           onClick={() => openModal()}
           className="flex items-center gap-2 bg-primary text-on-primary px-4 py-2 rounded-sm text-xs font-semibold hover:opacity-90 transition-opacity"
         >
@@ -250,8 +250,8 @@ export function OwnersPage() {
       </div>
 
       <div className="bg-background border border-border rounded-md p-4">
-        <TableToolbar 
-          search={search} setSearch={setSearch} 
+        <TableToolbar
+          search={search} setSearch={setSearch}
           sort={sort} setSort={setSort} sortOptions={sortOptions}
           pageSize={pageSize} setPageSize={setPageSize}
         />
@@ -275,19 +275,19 @@ export function OwnersPage() {
             <form onSubmit={handleSubmit} className="p-4 overflow-y-auto space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-text mb-1">Nama Pemilik</label>
-                <input required defaultValue={editItem?.name} name="name" type="text" className="w-full px-3 py-2 border border-border rounded-sm text-xs focus:border-primary outline-none" />
+                <input required defaultValue={editItem?.name} name="name" type="text" className="w-full px-3 py-2 border border-border rounded-sm text-xs  outline-none" />
               </div>
               <div>
                 <label className="block text-xs font-semibold text-text mb-1">No. Telepon / WhatsApp</label>
-                <input defaultValue={editItem?.contact_phone} name="contact_phone" type="text" className="w-full px-3 py-2 border border-border rounded-sm text-xs focus:border-primary outline-none" />
+                <input defaultValue={editItem?.contact_phone} name="contact_phone" type="text" className="w-full px-3 py-2 border border-border rounded-sm text-xs  outline-none" />
               </div>
               <div>
                 <label className="block text-xs font-semibold text-text mb-1">Alamat</label>
-                <textarea name="address" defaultValue={editItem?.address} rows="3" className="w-full px-3 py-2 border border-border rounded-sm text-xs focus:border-primary outline-none"></textarea>
+                <textarea name="address" defaultValue={editItem?.address} rows="3" className="w-full px-3 py-2 border border-border rounded-sm text-xs  outline-none"></textarea>
               </div>
               <div>
                 <label className="block text-xs font-semibold text-text mb-1">Foto Owner {editItem?.image_path && '(Kosongkan jika tidak diubah)'}</label>
-                <input name="image" type="file" accept="image/jpeg, image/png, image/webp" className="w-full px-3 py-2 border border-border rounded-sm text-xs text-text-muted focus:border-primary outline-none" />
+                <input name="image" type="file" accept="image/jpeg, image/png, image/webp" className="w-full px-3 py-2 border border-border rounded-sm text-xs text-text-muted  outline-none" />
                 {editItem?.image_path && (
                   <div className="mt-2">
                     <img src={editItem.image_path} alt="Preview" className="h-16 w-16 object-cover rounded-sm border border-border" />

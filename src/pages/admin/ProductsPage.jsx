@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useTableQuery } from '../../hooks/useTableQuery';
-import { 
-  DataTable, 
-  TableToolbar, 
-  Pagination, 
-  SelectAllCheckbox, 
-  BulkActionBar 
+import {
+  DataTable,
+  TableToolbar,
+  Pagination,
+  SelectAllCheckbox,
+  BulkActionBar
 } from '../../components/table';
 import { ConfirmModal } from '../../components/shared';
 import { Edit, Trash2, Plus, X } from 'lucide-react';
@@ -86,7 +86,7 @@ export function ProductsPage() {
   };
 
   const handleSelectOne = (id) => {
-    setSelectedIds(prev => 
+    setSelectedIds(prev =>
       prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
     );
   };
@@ -189,10 +189,10 @@ export function ProductsPage() {
   const isIndeterminate = selectedIds.length > 0 && selectedIds.length < data.length;
 
   const columns = [
-    <SelectAllCheckbox 
-      isAllSelected={isAllSelected} 
-      isIndeterminate={isIndeterminate} 
-      onChange={handleSelectAll} 
+    <SelectAllCheckbox
+      isAllSelected={isAllSelected}
+      isIndeterminate={isIndeterminate}
+      onChange={handleSelectAll}
     />,
     'No',
     'Gambar',
@@ -207,8 +207,8 @@ export function ProductsPage() {
   const renderRow = (item, idx) => (
     <tr key={item.id} className="hover:bg-surface/50 transition-colors">
       <td className="px-3 py-2">
-        <input 
-          type="checkbox" 
+        <input
+          type="checkbox"
           checked={selectedIds.includes(item.id)}
           onChange={() => handleSelectOne(item.id)}
           className="w-3.5 h-3.5 accent-primary cursor-pointer"
@@ -247,7 +247,7 @@ export function ProductsPage() {
           <h1 className="text-2xl font-display font-bold text-text">Manajemen Produk</h1>
           <p className="text-sm font-body text-text-muted">Daftar dan kelola produk UMKM.</p>
         </div>
-        <button 
+        <button
           onClick={() => openModal()}
           className="flex items-center gap-2 bg-primary text-on-primary px-4 py-2 rounded-sm text-xs font-semibold hover:opacity-90 transition-opacity"
         >
@@ -257,8 +257,8 @@ export function ProductsPage() {
       </div>
 
       <div className="bg-background border border-border rounded-md p-4">
-        <TableToolbar 
-          search={search} setSearch={setSearch} 
+        <TableToolbar
+          search={search} setSearch={setSearch}
           sort={sort} setSort={setSort} sortOptions={sortOptions}
           pageSize={pageSize} setPageSize={setPageSize}
         />
@@ -282,19 +282,19 @@ export function ProductsPage() {
             <form onSubmit={handleSubmit} className="p-4 overflow-y-auto space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-text mb-1">Nama Produk</label>
-                <input required defaultValue={editItem?.name} name="name" type="text" className="w-full px-3 py-2 border border-border rounded-sm text-xs focus:border-primary outline-none" />
+                <input required defaultValue={editItem?.name} name="name" type="text" className="w-full px-3 py-2 border border-border rounded-sm text-xs  outline-none" />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-text mb-1">Kategori</label>
-                  <select name="category_id" defaultValue={editItem?.category_id || ''} className="w-full px-3 py-2 border border-border rounded-sm text-xs focus:border-primary outline-none">
+                  <select name="category_id" defaultValue={editItem?.category_id || ''} className="w-full px-3 py-2 border border-border rounded-sm text-xs  outline-none">
                     <option value="">Pilih Kategori</option>
                     {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-text mb-1">Owner</label>
-                  <select name="owner_id" defaultValue={editItem?.owner_id || ''} className="w-full px-3 py-2 border border-border rounded-sm text-xs focus:border-primary outline-none">
+                  <select name="owner_id" defaultValue={editItem?.owner_id || ''} className="w-full px-3 py-2 border border-border rounded-sm text-xs  outline-none">
                     <option value="">Pilih Owner</option>
                     {owners.map(o => <option key={o.id} value={o.id}>{o.name}</option>)}
                   </select>
@@ -303,20 +303,20 @@ export function ProductsPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-text mb-1">Harga (Rp)</label>
-                  <input required defaultValue={editItem?.price} name="price" type="number" min="0" className="w-full px-3 py-2 border border-border rounded-sm text-xs focus:border-primary outline-none" />
+                  <input required defaultValue={editItem?.price} name="price" type="number" min="0" className="w-full px-3 py-2 border border-border rounded-sm text-xs  outline-none" />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-text mb-1">Stok</label>
-                  <input required defaultValue={editItem?.stock} name="stock" type="number" min="0" className="w-full px-3 py-2 border border-border rounded-sm text-xs focus:border-primary outline-none" />
+                  <input required defaultValue={editItem?.stock} name="stock" type="number" min="0" className="w-full px-3 py-2 border border-border rounded-sm text-xs  outline-none" />
                 </div>
               </div>
               <div>
                 <label className="block text-xs font-semibold text-text mb-1">Deskripsi</label>
-                <textarea name="description" defaultValue={editItem?.description} rows="3" className="w-full px-3 py-2 border border-border rounded-sm text-xs focus:border-primary outline-none"></textarea>
+                <textarea name="description" defaultValue={editItem?.description} rows="3" className="w-full px-3 py-2 border border-border rounded-sm text-xs  outline-none"></textarea>
               </div>
               <div>
                 <label className="block text-xs font-semibold text-text mb-1">Gambar Produk {editItem?.image_path && '(Kosongkan jika tidak diubah)'}</label>
-                <input name="image" type="file" accept="image/jpeg, image/png, image/webp" className="w-full px-3 py-2 border border-border rounded-sm text-xs text-text-muted focus:border-primary outline-none" />
+                <input name="image" type="file" accept="image/jpeg, image/png, image/webp" className="w-full px-3 py-2 border border-border rounded-sm text-xs text-text-muted  outline-none" />
                 {editItem?.image_path && (
                   <div className="mt-2">
                     <img src={editItem.image_path} alt="Preview" className="h-16 w-16 object-cover rounded-sm border border-border" />
