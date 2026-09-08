@@ -33,7 +33,7 @@ export const Footer = () => {
     <footer className="bg-surface border-t border-border pt-12 pb-6 mt-auto">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 mb-12">
-          
+
           {/* Kolom 1: Info */}
           <div>
             <Link to="/" className="inline-flex items-center gap-2 font-display font-bold text-xl text-primary mb-4">
@@ -41,7 +41,7 @@ export const Footer = () => {
               Katalog Pasiragung
             </Link>
             <p className="text-sm font-body text-text-muted leading-relaxed">
-              Platform e-katalog resmi UMKM Desa Pasiragung. 
+              Platform e-katalog resmi UMKM Desa Pasiragung.
               Menghubungkan produk-produk berkualitas unggulan dari warga desa langsung ke tangan Anda.
             </p>
           </div>
@@ -68,7 +68,7 @@ export const Footer = () => {
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-primary shrink-0" />
-                <span>+62 812-3456-7890 (BUMDes)</span>
+                <a href="https://wa.me/6285314893950" target="_blank" rel="noopener noreferrer"><span>+62 812-3456-7890 (BUMDes)</span></a>
               </li>
             </ul>
           </div>
@@ -85,6 +85,6 @@ export const Footer = () => {
           </p>
         </div>
       </div>
-    </footer>
+    </footer >
   );
 };

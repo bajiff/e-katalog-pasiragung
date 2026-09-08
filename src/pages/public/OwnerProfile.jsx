@@ -24,7 +24,7 @@ export function OwnerProfile() {
           .order('created_at', { ascending: false });
         setProducts(productsData || []);
       }
-      
+
       setLoading(false);
     };
 
@@ -38,7 +38,7 @@ export function OwnerProfile() {
     <div className="container mx-auto px-4 py-12 max-w-5xl">
       {/* Header Profil */}
       <div className="bg-background border border-border rounded-md p-6 md:p-10 mb-12 flex flex-col md:flex-row items-center md:items-start gap-8">
-        <div className="w-32 h-32 md:w-48 md:h-48 rounded-full border-4 border-surface bg-surface overflow-hidden flex-shrink-0 flex items-center justify-center shadow-sm">
+        <div className="w-32 h-32 md:w-48 md:h-48 rounded-full border-4 border-surface bg-surface overflow-hidden shrink-0 flex items-center justify-center shadow-sm">
           {owner.image_path ? (
             <img src={owner.image_path} alt={owner.name} className="w-full h-full object-cover" />
           ) : (
@@ -49,17 +49,17 @@ export function OwnerProfile() {
           <h1 className="text-3xl md:text-4xl font-display font-bold text-text mb-4">{owner.name}</h1>
           <div className="space-y-3 font-body text-sm text-text-muted mb-6">
             <div className="flex items-center justify-center md:justify-start gap-2">
-              <Phone className="w-4 h-4 text-primary" />
-              <span>{owner.contact_phone || 'Tidak ada nomor telepon'}</span>
+              <Flame className="w-4 h-4 text-primary" />
+              <span>Pasiragung Bestari, Berseri dan Lestari</span>
             </div>
             <div className="flex items-center justify-center md:justify-start gap-2">
-              <MapPin className="w-4 h-4 text-primary flex-shrink-0" />
-              <span>{owner.address || 'Tidak ada alamat lengkap'}</span>
+              <MapPin className="w-4 h-4 text-primary shrink-0" />
+              <span>Ds. Pasiragung, Kec. Hantara, Kab. Kuningan</span>
             </div>
           </div>
-          <a 
-            href={`https://wa.me/${owner.contact_phone?.replace(/^0/, '62')}`} 
-            target="_blank" 
+          <a
+            href={`https://wa.me/${owner.contact_phone?.replace(/^0/, '62')}`}
+            target="_blank"
             rel="noopener noreferrer"
             className="inline-block px-6 py-2 bg-primary text-on-primary font-bold rounded-sm hover:opacity-90 transition-opacity"
           >
@@ -70,7 +70,7 @@ export function OwnerProfile() {
 
       {/* Grid Produk Owner */}
       <h2 className="text-2xl font-display font-bold text-text mb-6 text-center md:text-left">Produk dari {owner.name}</h2>
-      
+
       {products.length === 0 ? (
         <div className="text-center py-12 bg-surface border border-border rounded-md text-text-muted">
           Belum ada produk yang ditambahkan.
