@@ -98,12 +98,19 @@ export function ProductsPage() {
       confirmText: 'Ya, Hapus',
       isDestructive: true,
       onConfirm: async () => {
-        if (imagePath) {
-          await deleteImage(imagePath, 'product-images');
+        try {
+          if (imagePath) {
+            await deleteImage(imagePath, 'product-images');
+          }
+          const { error } = await supabase.from('products').delete().eq('id', id);
+          if (error) throw error;
+          
+          setSelectedIds(selectedIds.filter(i => i !== id));
+          loadData();
+        } catch (err) {
+          console.error("Gagal menghapus produk:", err);
+          alert(`Gagal menghapus produk: ${err.message || 'Terjadi kesalahan sistem'}`);
         }
-        await supabase.from('products').delete().eq('id', id);
-        setSelectedIds(selectedIds.filter(i => i !== id));
-        loadData();
       }
     });
   };
@@ -115,13 +122,20 @@ export function ProductsPage() {
       confirmText: 'Ya, Hapus Semua',
       isDestructive: true,
       onConfirm: async () => {
-        const itemsToDelete = data.filter(d => selectedIds.includes(d.id) && d.image_path);
-        for (const item of itemsToDelete) {
-          await deleteImage(item.image_path, 'product-images');
+        try {
+          const itemsToDelete = data.filter(d => selectedIds.includes(d.id) && d.image_path);
+          for (const item of itemsToDelete) {
+            await deleteImage(item.image_path, 'product-images');
+          }
+          const { error } = await supabase.from('products').delete().in('id', selectedIds);
+          if (error) throw error;
+
+          setSelectedIds([]);
+          loadData();
+        } catch (err) {
+          console.error("Gagal menghapus banyak produk:", err);
+          alert(`Gagal menghapus produk: ${err.message || 'Terjadi kesalahan sistem'}`);
         }
-        await supabase.from('products').delete().in('id', selectedIds);
-        setSelectedIds([]);
-        loadData();
       }
     });
   };
@@ -152,35 +166,53 @@ export function ProductsPage() {
       message: editItem ? 'Apakah Anda yakin ingin mengupdate data produk ini?' : 'Apakah Anda yakin ingin menambahkan produk ini?',
       confirmText: editItem ? 'Ya, Update' : 'Ya, Tambahkan',
       onConfirm: async () => {
-        setIsSaving(true);
-        let image_path = editItem?.image_path;
+        try {
+          setIsSaving(true);
+          let image_path = editItem?.image_path;
 
-        if (file && file.size > 0) {
-          if (editItem?.image_path) {
-            await deleteImage(editItem.image_path, 'product-images');
+          if (file && file.size > 0) {
+            if (editItem?.image_path) {
+              await deleteImage(editItem.image_path, 'product-images');
+            }
+            image_path = await uploadImage(file, 'product-images');
           }
-          image_path = await uploadImage(file, 'product-images');
+
+          const payload = {
+            name,
+            category_id: category_id || null,
+            owner_id: owner_id || null,
+            price: Number(price),
+            stock: Number(stock),
+            description,
+            image_path
+          };
+
+          if (!editItem) {
+            payload.production_system = 'ready_stock';
+            payload.capacity = 1;
+            payload.unit = 'pcs';
+          }
+
+          let resError = null;
+
+          if (editItem) {
+            const { error } = await supabase.from('products').update(payload).eq('id', editItem.id);
+            resError = error;
+          } else {
+            const { error } = await supabase.from('products').insert([payload]);
+            resError = error;
+          }
+
+          if (resError) throw resError;
+
+          closeModal();
+          loadData();
+        } catch (err) {
+          console.error("Operasi gagal:", err);
+          alert(`Gagal menyimpan data: ${err.message || 'Terjadi kesalahan sistem'}`);
+        } finally {
+          setIsSaving(false);
         }
-
-        const payload = {
-          name,
-          category_id: category_id || null,
-          owner_id: owner_id || null,
-          price: Number(price),
-          stock: Number(stock),
-          description,
-          image_path
-        };
-
-        if (editItem) {
-          await supabase.from('products').update(payload).eq('id', editItem.id);
-        } else {
-          await supabase.from('products').insert([payload]);
-        }
-
-        setIsSaving(false);
-        closeModal();
-        loadData();
       }
     });
   };
