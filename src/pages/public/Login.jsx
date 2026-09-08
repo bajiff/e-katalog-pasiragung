@@ -93,7 +93,7 @@ export function Login() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2 border rounded-sm text-xs placeholder-text-muted focus:outline-none focus:border-primary transition-colors"
+                  className="appearance-none block w-full px-3 py-2 border rounded-sm text-xs placeholder-text-muted focus:outline-none  transition-colors"
                 />
               </div>
             </div>
@@ -110,7 +110,7 @@ export function Login() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2 border rounded-sm text-xs placeholder-text-muted focus:outline-none focus:border-primary transition-colors pr-10"
+                  className="appearance-none block w-full px-3 py-2 border rounded-sm text-xs placeholder-text-muted focus:outline-none  transition-colors pr-10"
                 />
                 <button
                   type="button"

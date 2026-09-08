@@ -38,7 +38,7 @@ export function Register() {
 
     try {
       const { error: signUpError } = await signUp(formData.email, formData.password, formData.name);
-      
+
       if (signUpError) throw signUpError;
 
       setSuccess('Registrasi berhasil! Menunggu persetujuan Super Admin sebelum dapat login.');
@@ -74,7 +74,7 @@ export function Register() {
               {error}
             </div>
           )}
-          
+
           {success && (
             <div className="mb-4 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-sm text-sm font-semibold">
               {success}
@@ -92,7 +92,7 @@ export function Register() {
                 required
                 value={formData.name}
                 onChange={handleChange}
-                className="appearance-none block w-full px-3 py-2 border border-border rounded-sm text-xs placeholder-text-muted focus:outline-none focus:border-primary transition-colors"
+                className="appearance-none block w-full px-3 py-2 border border-border rounded-sm text-xs placeholder-text-muted focus:outline-none  transition-colors"
               />
             </div>
 
@@ -106,7 +106,7 @@ export function Register() {
                 required
                 value={formData.email}
                 onChange={handleChange}
-                className="appearance-none block w-full px-3 py-2 border border-border rounded-sm text-xs placeholder-text-muted focus:outline-none focus:border-primary transition-colors"
+                className="appearance-none block w-full px-3 py-2 border border-border rounded-sm text-xs placeholder-text-muted focus:outline-none  transition-colors"
               />
             </div>
 
@@ -121,7 +121,7 @@ export function Register() {
                   required
                   value={formData.password}
                   onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-border rounded-sm text-xs placeholder-text-muted focus:outline-none focus:border-primary transition-colors pr-10"
+                  className="appearance-none block w-full px-3 py-2 border border-border rounded-sm text-xs placeholder-text-muted focus:outline-none  transition-colors pr-10"
                 />
                 <button
                   type="button"
@@ -144,7 +144,7 @@ export function Register() {
                   required
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className="appearance-none block w-full px-3 py-2 border border-border rounded-sm text-xs placeholder-text-muted focus:outline-none focus:border-primary transition-colors pr-10"
+                  className="appearance-none block w-full px-3 py-2 border border-border rounded-sm text-xs placeholder-text-muted focus:outline-none  transition-colors pr-10"
                 />
               </div>
             </div>
@@ -159,7 +159,7 @@ export function Register() {
               </button>
             </div>
           </form>
-          
+
           <div className="mt-6">
             <Link to="/" className="w-full flex justify-center py-2 px-4 border border-border rounded-sm text-sm font-semibold text-text bg-surface hover:bg-gray-100 transition-colors">
               Kembali ke Beranda
