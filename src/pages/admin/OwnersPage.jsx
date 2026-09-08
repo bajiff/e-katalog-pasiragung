@@ -89,12 +89,19 @@ export function OwnersPage() {
       confirmText: 'Ya, Hapus',
       isDestructive: true,
       onConfirm: async () => {
-        if (item.image_path) {
-          await deleteImage(item.image_path, 'owner-images');
+        try {
+          if (item.image) {
+            await deleteImage(item.image, 'owner-images');
+          }
+          const { error } = await supabase.from('owners').delete().eq('id', item.id);
+          if (error) throw error;
+          
+          setSelectedIds(selectedIds.filter(i => i !== item.id));
+          loadData();
+        } catch (err) {
+          console.error("Gagal menghapus owner:", err);
+          alert(`Gagal menghapus owner: ${err.message || 'Terjadi kesalahan sistem'}`);
         }
-        await supabase.from('owners').delete().eq('id', item.id);
-        setSelectedIds(selectedIds.filter(i => i !== item.id));
-        loadData();
       }
     });
   };
@@ -114,12 +121,19 @@ export function OwnersPage() {
       confirmText: 'Ya, Hapus Semua',
       isDestructive: true,
       onConfirm: async () => {
-        for (const item of itemsToDelete) {
-          if (item.image_path) await deleteImage(item.image_path, 'owner-images');
+        try {
+          for (const item of itemsToDelete) {
+            if (item.image) await deleteImage(item.image, 'owner-images');
+          }
+          const { error } = await supabase.from('owners').delete().in('id', selectedIds);
+          if (error) throw error;
+          
+          setSelectedIds([]);
+          loadData();
+        } catch (err) {
+          console.error("Gagal menghapus banyak owner:", err);
+          alert(`Gagal menghapus owner: ${err.message || 'Terjadi kesalahan sistem'}`);
         }
-        await supabase.from('owners').delete().in('id', selectedIds);
-        setSelectedIds([]);
-        loadData();
       }
     });
   };
@@ -138,8 +152,6 @@ export function OwnersPage() {
     e.preventDefault();
     const formData = new FormData(e.target);
     const name = formData.get('name');
-    const contact_phone = formData.get('contact_phone');
-    const address = formData.get('address');
     const file = formData.get('image');
 
     requestConfirm({
@@ -147,27 +159,38 @@ export function OwnersPage() {
       message: editItem ? 'Apakah Anda yakin ingin mengupdate data owner ini?' : 'Apakah Anda yakin ingin menambahkan owner ini?',
       confirmText: editItem ? 'Ya, Update' : 'Ya, Tambahkan',
       onConfirm: async () => {
-        setIsSaving(true);
-        let image_path = editItem?.image_path;
+        try {
+          setIsSaving(true);
+          let image_path = editItem?.image;
 
-        if (file && file.size > 0) {
-          if (editItem?.image_path) {
-            await deleteImage(editItem.image_path, 'owner-images');
+          if (file && file.size > 0) {
+            if (editItem?.image) {
+              await deleteImage(editItem.image, 'owner-images');
+            }
+            image_path = await uploadImage(file, 'owner-images');
           }
-          image_path = await uploadImage(file, 'owner-images');
+
+          const payload = { name, image: image_path };
+          let resError = null;
+
+          if (editItem) {
+            const { error } = await supabase.from('owners').update(payload).eq('id', editItem.id);
+            resError = error;
+          } else {
+            const { error } = await supabase.from('owners').insert([payload]);
+            resError = error;
+          }
+
+          if (resError) throw resError;
+
+          closeModal();
+          loadData();
+        } catch (err) {
+          console.error("Operasi gagal:", err);
+          alert(`Gagal menyimpan data: ${err.message || 'Terjadi kesalahan sistem'}`);
+        } finally {
+          setIsSaving(false);
         }
-
-        const payload = { name, contact_phone, address, image_path };
-
-        if (editItem) {
-          await supabase.from('owners').update(payload).eq('id', editItem.id);
-        } else {
-          await supabase.from('owners').insert([payload]);
-        }
-
-        setIsSaving(false);
-        closeModal();
-        loadData();
       }
     });
   };
@@ -184,7 +207,6 @@ export function OwnersPage() {
     'No',
     'Foto',
     'Nama Pemilik',
-    'Telepon',
     'Jumlah Produk',
     'Aksi'
   ];
@@ -205,14 +227,13 @@ export function OwnersPage() {
         </td>
         <td className="px-3 py-2 text-xs text-text-muted">{(page - 1) * (pageSize === 'all' ? totalItems : pageSize) + idx + 1}</td>
         <td className="px-3 py-2">
-          {item.image_path ? (
-            <img src={item.image_path} alt={item.name} className="w-10 h-10 object-cover rounded-sm border border-border" />
+          {item.image ? (
+            <img src={item.image} alt={item.name} className="w-10 h-10 object-cover rounded-sm border border-border" />
           ) : (
             <div className="w-10 h-10 bg-surface rounded-sm border border-border flex items-center justify-center text-xs text-text-muted">No Img</div>
           )}
         </td>
         <td className="px-3 py-2 text-xs font-semibold text-text">{item.name}</td>
-        <td className="px-3 py-2 text-xs text-text-muted">{item.contact_phone || '-'}</td>
         <td className="px-3 py-2 text-xs text-text-muted">{productsCount}</td>
         <td className="px-3 py-2">
           <div className="flex items-center gap-2">
@@ -278,19 +299,11 @@ export function OwnersPage() {
                 <input required defaultValue={editItem?.name} name="name" type="text" className="w-full px-3 py-2 border border-border rounded-sm text-xs  outline-none" />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-text mb-1">No. Telepon / WhatsApp</label>
-                <input defaultValue={editItem?.contact_phone} name="contact_phone" type="text" className="w-full px-3 py-2 border border-border rounded-sm text-xs  outline-none" />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-text mb-1">Alamat</label>
-                <textarea name="address" defaultValue={editItem?.address} rows="3" className="w-full px-3 py-2 border border-border rounded-sm text-xs  outline-none"></textarea>
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-text mb-1">Foto Owner {editItem?.image_path && '(Kosongkan jika tidak diubah)'}</label>
+                <label className="block text-xs font-semibold text-text mb-1">Foto Owner {editItem?.image && '(Kosongkan jika tidak diubah)'}</label>
                 <input name="image" type="file" accept="image/jpeg, image/png, image/webp" className="w-full px-3 py-2 border border-border rounded-sm text-xs text-text-muted  outline-none" />
-                {editItem?.image_path && (
+                {editItem?.image && (
                   <div className="mt-2">
-                    <img src={editItem.image_path} alt="Preview" className="h-16 w-16 object-cover rounded-sm border border-border" />
+                    <img src={editItem.image} alt="Preview" className="h-16 w-16 object-cover rounded-sm border border-border" />
                   </div>
                 )}
               </div>
