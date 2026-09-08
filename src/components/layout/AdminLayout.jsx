@@ -2,14 +2,17 @@ import React from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { LayoutDashboard, Package, Grid, Users, UserCog, User, LogOut, Menu, X } from 'lucide-react';
+import { ConfirmModal } from '../shared';
 
 export function AdminLayout() {
   const { profile, signOut } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = React.useState(false);
 
   const handleLogout = async () => {
+    setIsLogoutModalOpen(false);
     await signOut();
     navigate('/login');
   };
@@ -63,7 +66,7 @@ export function AdminLayout() {
             Profil
           </Link>
           <button
-            onClick={handleLogout}
+            onClick={() => setIsLogoutModalOpen(true)}
             className="flex items-center w-full gap-3 px-3 py-2 rounded-sm text-sm font-body text-red-600 hover:bg-red-50 transition-colors"
           >
             <LogOut className="w-4 h-4" />
@@ -116,7 +119,10 @@ export function AdminLayout() {
                 Profil
               </Link>
               <button
-                onClick={handleLogout}
+                onClick={() => {
+                  toggleSidebar();
+                  setIsLogoutModalOpen(true);
+                }}
                 className="flex items-center w-full gap-3 px-3 py-2 rounded-sm text-sm font-body text-red-600 hover:bg-red-50 transition-colors"
               >
                 <LogOut className="w-4 h-4" />
@@ -159,6 +165,16 @@ export function AdminLayout() {
           <Outlet />
         </div>
       </main>
+
+      <ConfirmModal
+        isOpen={isLogoutModalOpen}
+        title="Konfirmasi Logout"
+        message="Apakah Anda yakin ingin keluar dari sesi ini?"
+        confirmText="Ya, Logout"
+        onConfirm={handleLogout}
+        onCancel={() => setIsLogoutModalOpen(false)}
+        isDestructive={true}
+      />
     </div>
   );
 }

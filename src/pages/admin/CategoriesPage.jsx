@@ -8,6 +8,7 @@ import {
   SelectAllCheckbox, 
   BulkActionBar 
 } from '../../components/table';
+import { ConfirmModal } from '../../components/shared';
 import { Edit, Trash2, Plus, X } from 'lucide-react';
 
 const sortOptions = [
@@ -35,6 +36,18 @@ export function CategoriesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editItem, setEditItem] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false });
+
+  const requestConfirm = (options) => {
+    setConfirmModal({
+      ...options,
+      isOpen: true,
+      onConfirm: async () => {
+        setConfirmModal(prev => ({ ...prev, isOpen: false }));
+        if (options.onConfirm) await options.onConfirm();
+      }
+    });
+  };
 
   const loadData = async () => {
     setLoading(true);
@@ -62,20 +75,27 @@ export function CategoriesPage() {
     );
   };
 
-  const handleDelete = async (item) => {
+  const handleDelete = (item) => {
     const productsCount = item.products?.[0]?.count || 0;
     if (productsCount > 0) {
       alert(`Tidak dapat menghapus kategori ini karena masih memiliki ${productsCount} produk terkait.`);
       return;
     }
-    if (!window.confirm('Yakin ingin menghapus kategori ini?')) return;
     
-    await supabase.from('categories').delete().eq('id', item.id);
-    setSelectedIds(selectedIds.filter(i => i !== item.id));
-    loadData();
+    requestConfirm({
+      title: 'Hapus Kategori',
+      message: 'Apakah Anda yakin ingin menghapus kategori ini?',
+      confirmText: 'Ya, Hapus',
+      isDestructive: true,
+      onConfirm: async () => {
+        await supabase.from('categories').delete().eq('id', item.id);
+        setSelectedIds(selectedIds.filter(i => i !== item.id));
+        loadData();
+      }
+    });
   };
 
-  const handleBulkDelete = async () => {
+  const handleBulkDelete = () => {
     const itemsToDelete = data.filter(d => selectedIds.includes(d.id));
     const invalidItems = itemsToDelete.filter(d => (d.products?.[0]?.count || 0) > 0);
     
@@ -84,11 +104,17 @@ export function CategoriesPage() {
       return;
     }
 
-    if (!window.confirm(`Yakin menghapus ${selectedIds.length} kategori?`)) return;
-    
-    await supabase.from('categories').delete().in('id', selectedIds);
-    setSelectedIds([]);
-    loadData();
+    requestConfirm({
+      title: 'Hapus Banyak Kategori',
+      message: `Yakin menghapus ${selectedIds.length} kategori?`,
+      confirmText: 'Ya, Hapus Semua',
+      isDestructive: true,
+      onConfirm: async () => {
+        await supabase.from('categories').delete().in('id', selectedIds);
+        setSelectedIds([]);
+        loadData();
+      }
+    });
   };
 
   const openModal = (item = null) => {
@@ -101,24 +127,31 @@ export function CategoriesPage() {
     setIsModalOpen(false);
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setIsSaving(true);
     const formData = new FormData(e.target);
     const name = formData.get('name');
     const description = formData.get('description');
+    
+    requestConfirm({
+      title: editItem ? 'Konfirmasi Update' : 'Konfirmasi Tambah',
+      message: editItem ? 'Apakah Anda yakin ingin mengupdate data kategori ini?' : 'Apakah Anda yakin ingin menambahkan kategori ini?',
+      confirmText: editItem ? 'Ya, Update' : 'Ya, Tambahkan',
+      onConfirm: async () => {
+        setIsSaving(true);
+        const payload = { name, description };
 
-    const payload = { name, description };
+        if (editItem) {
+          await supabase.from('categories').update(payload).eq('id', editItem.id);
+        } else {
+          await supabase.from('categories').insert([payload]);
+        }
 
-    if (editItem) {
-      await supabase.from('categories').update(payload).eq('id', editItem.id);
-    } else {
-      await supabase.from('categories').insert([payload]);
-    }
-
-    setIsSaving(false);
-    closeModal();
-    loadData();
+        setIsSaving(false);
+        closeModal();
+        loadData();
+      }
+    });
   };
 
   const isAllSelected = data.length > 0 && selectedIds.length === data.length;
@@ -232,6 +265,16 @@ export function CategoriesPage() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText={confirmModal.confirmText}
+        onConfirm={confirmModal.onConfirm}
+        onCancel={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+        isDestructive={confirmModal.isDestructive}
+      />
     </div>
   );
 }

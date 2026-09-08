@@ -3,3 +3,4 @@ export * from './SearchInput';
 export * from './OwnerCard';
 export * from './ProductCard';
 export * from './MapEmbed';
+export * from './ConfirmModal';

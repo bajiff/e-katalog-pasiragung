@@ -8,6 +8,7 @@ import {
   SelectAllCheckbox, 
   BulkActionBar 
 } from '../../components/table';
+import { ConfirmModal } from '../../components/shared';
 import { Edit, Trash2, Plus, X } from 'lucide-react';
 import { uploadImage, deleteImage } from '../../lib/storage';
 
@@ -40,6 +41,18 @@ export function ProductsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editItem, setEditItem] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false });
+
+  const requestConfirm = (options) => {
+    setConfirmModal({
+      ...options,
+      isOpen: true,
+      onConfirm: async () => {
+        setConfirmModal(prev => ({ ...prev, isOpen: false }));
+        if (options.onConfirm) await options.onConfirm();
+      }
+    });
+  };
 
   const loadData = async () => {
     setLoading(true);
@@ -78,30 +91,39 @@ export function ProductsPage() {
     );
   };
 
-  const handleDelete = async (id, imagePath) => {
-    if (!window.confirm('Yakin ingin menghapus produk ini?')) return;
-    
-    if (imagePath) {
-      await deleteImage(imagePath, 'product-images');
-    }
-    
-    await supabase.from('products').delete().eq('id', id);
-    setSelectedIds(selectedIds.filter(i => i !== id));
-    loadData();
+  const handleDelete = (id, imagePath) => {
+    requestConfirm({
+      title: 'Hapus Produk',
+      message: 'Apakah Anda yakin ingin menghapus produk ini?',
+      confirmText: 'Ya, Hapus',
+      isDestructive: true,
+      onConfirm: async () => {
+        if (imagePath) {
+          await deleteImage(imagePath, 'product-images');
+        }
+        await supabase.from('products').delete().eq('id', id);
+        setSelectedIds(selectedIds.filter(i => i !== id));
+        loadData();
+      }
+    });
   };
 
-  const handleBulkDelete = async () => {
-    if (!window.confirm(`Yakin menghapus ${selectedIds.length} produk?`)) return;
-    
-    // Optional: delete images for all selected if needed
-    const itemsToDelete = data.filter(d => selectedIds.includes(d.id) && d.image_path);
-    for (const item of itemsToDelete) {
-      await deleteImage(item.image_path, 'product-images');
-    }
-
-    await supabase.from('products').delete().in('id', selectedIds);
-    setSelectedIds([]);
-    loadData();
+  const handleBulkDelete = () => {
+    requestConfirm({
+      title: 'Hapus Banyak Produk',
+      message: `Yakin menghapus ${selectedIds.length} produk?`,
+      confirmText: 'Ya, Hapus Semua',
+      isDestructive: true,
+      onConfirm: async () => {
+        const itemsToDelete = data.filter(d => selectedIds.includes(d.id) && d.image_path);
+        for (const item of itemsToDelete) {
+          await deleteImage(item.image_path, 'product-images');
+        }
+        await supabase.from('products').delete().in('id', selectedIds);
+        setSelectedIds([]);
+        loadData();
+      }
+    });
   };
 
   const openModal = (item = null) => {
@@ -114,9 +136,8 @@ export function ProductsPage() {
     setIsModalOpen(false);
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setIsSaving(true);
     const formData = new FormData(e.target);
     const name = formData.get('name');
     const category_id = formData.get('category_id');
@@ -126,34 +147,42 @@ export function ProductsPage() {
     const description = formData.get('description');
     const file = formData.get('image');
 
-    let image_path = editItem?.image_path;
+    requestConfirm({
+      title: editItem ? 'Konfirmasi Update' : 'Konfirmasi Tambah',
+      message: editItem ? 'Apakah Anda yakin ingin mengupdate data produk ini?' : 'Apakah Anda yakin ingin menambahkan produk ini?',
+      confirmText: editItem ? 'Ya, Update' : 'Ya, Tambahkan',
+      onConfirm: async () => {
+        setIsSaving(true);
+        let image_path = editItem?.image_path;
 
-    if (file && file.size > 0) {
-      if (editItem?.image_path) {
-        await deleteImage(editItem.image_path, 'product-images');
+        if (file && file.size > 0) {
+          if (editItem?.image_path) {
+            await deleteImage(editItem.image_path, 'product-images');
+          }
+          image_path = await uploadImage(file, 'product-images');
+        }
+
+        const payload = {
+          name,
+          category_id: category_id || null,
+          owner_id: owner_id || null,
+          price: Number(price),
+          stock: Number(stock),
+          description,
+          image_path
+        };
+
+        if (editItem) {
+          await supabase.from('products').update(payload).eq('id', editItem.id);
+        } else {
+          await supabase.from('products').insert([payload]);
+        }
+
+        setIsSaving(false);
+        closeModal();
+        loadData();
       }
-      image_path = await uploadImage(file, 'product-images');
-    }
-
-    const payload = {
-      name,
-      category_id: category_id || null,
-      owner_id: owner_id || null,
-      price: Number(price),
-      stock: Number(stock),
-      description,
-      image_path
-    };
-
-    if (editItem) {
-      await supabase.from('products').update(payload).eq('id', editItem.id);
-    } else {
-      await supabase.from('products').insert([payload]);
-    }
-
-    setIsSaving(false);
-    closeModal();
-    loadData();
+    });
   };
 
   const isAllSelected = data.length > 0 && selectedIds.length === data.length;
@@ -304,6 +333,16 @@ export function ProductsPage() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText={confirmModal.confirmText}
+        onConfirm={confirmModal.onConfirm}
+        onCancel={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+        isDestructive={confirmModal.isDestructive}
+      />
     </div>
   );
 }

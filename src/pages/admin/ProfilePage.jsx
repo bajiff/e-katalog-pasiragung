@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { uploadImage, deleteImage } from '../../lib/storage';
+import { ConfirmModal } from '../../components/shared';
 import { User } from 'lucide-react';
 
 export function ProfilePage() {
@@ -9,64 +10,91 @@ export function ProfilePage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isPassSaving, setIsPassSaving] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false });
 
-  const handleProfileSubmit = async (e) => {
-    e.preventDefault();
-    setIsSaving(true);
-    setMessage({ text: '', type: '' });
-    
-    try {
-      const formData = new FormData(e.target);
-      const name = formData.get('name');
-      const file = formData.get('avatar');
-
-      let avatar_url = profile?.avatar_url;
-
-      if (file && file.size > 0) {
-        if (profile?.avatar_url) {
-          await deleteImage(profile.avatar_url, 'owner-images'); // Reusing owner-images bucket or product-images is fine, or profile-images
-          // Note: make sure to have an appropriate bucket or we can just use owner-images for now
-        }
-        avatar_url = await uploadImage(file, 'owner-images');
+  const requestConfirm = (options) => {
+    setConfirmModal({
+      ...options,
+      isOpen: true,
+      onConfirm: async () => {
+        setConfirmModal(prev => ({ ...prev, isOpen: false }));
+        if (options.onConfirm) await options.onConfirm();
       }
-
-      const { error } = await supabase.from('profiles').update({ name, avatar_url }).eq('id', profile.id);
-      
-      if (error) throw error;
-      
-      setMessage({ text: 'Profil berhasil diperbarui. Refresh halaman untuk melihat perubahan pada topbar.', type: 'success' });
-    } catch (error) {
-      setMessage({ text: error.message, type: 'error' });
-    } finally {
-      setIsSaving(false);
-    }
+    });
   };
 
-  const handlePasswordSubmit = async (e) => {
+  const handleProfileSubmit = (e) => {
     e.preventDefault();
-    setIsPassSaving(true);
-    setMessage({ text: '', type: '' });
+    const formData = new FormData(e.target);
+    const name = formData.get('name');
+    const file = formData.get('avatar');
 
-    try {
-      const formData = new FormData(e.target);
-      const newPassword = formData.get('new_password');
-      const confirmPassword = formData.get('confirm_password');
+    requestConfirm({
+      title: 'Perbarui Profil',
+      message: 'Apakah Anda yakin ingin memperbarui profil Anda?',
+      confirmText: 'Ya, Perbarui',
+      onConfirm: async () => {
+        setIsSaving(true);
+        setMessage({ text: '', type: '' });
+        
+        try {
+          let avatar_url = profile?.avatar_url;
 
-      if (newPassword !== confirmPassword) {
-        throw new Error('Konfirmasi password tidak cocok.');
+          if (file && file.size > 0) {
+            if (profile?.avatar_url) {
+              await deleteImage(profile.avatar_url, 'owner-images');
+            }
+            avatar_url = await uploadImage(file, 'owner-images');
+          }
+
+          const { error } = await supabase.from('profiles').update({ name, avatar_url }).eq('id', profile.id);
+          
+          if (error) throw error;
+          
+          setMessage({ text: 'Profil berhasil diperbarui. Refresh halaman untuk melihat perubahan pada topbar.', type: 'success' });
+        } catch (error) {
+          setMessage({ text: error.message, type: 'error' });
+        } finally {
+          setIsSaving(false);
+        }
       }
+    });
+  };
 
-      const { error } = await supabase.auth.updateUser({ password: newPassword });
-      
-      if (error) throw error;
+  const handlePasswordSubmit = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const newPassword = formData.get('new_password');
+    const confirmPassword = formData.get('confirm_password');
+    const formTarget = e.target;
 
-      setMessage({ text: 'Password berhasil diperbarui.', type: 'success' });
-      e.target.reset();
-    } catch (error) {
-      setMessage({ text: error.message, type: 'error' });
-    } finally {
-      setIsPassSaving(false);
+    if (newPassword !== confirmPassword) {
+      setMessage({ text: 'Konfirmasi password tidak cocok.', type: 'error' });
+      return;
     }
+
+    requestConfirm({
+      title: 'Ubah Kata Sandi',
+      message: 'Apakah Anda yakin ingin mengubah kata sandi Anda?',
+      confirmText: 'Ya, Ubah Kata Sandi',
+      onConfirm: async () => {
+        setIsPassSaving(true);
+        setMessage({ text: '', type: '' });
+
+        try {
+          const { error } = await supabase.auth.updateUser({ password: newPassword });
+          
+          if (error) throw error;
+
+          setMessage({ text: 'Password berhasil diperbarui.', type: 'success' });
+          formTarget.reset();
+        } catch (error) {
+          setMessage({ text: error.message, type: 'error' });
+        } finally {
+          setIsPassSaving(false);
+        }
+      }
+    });
   };
 
   return (
@@ -144,6 +172,16 @@ export function ProfilePage() {
           </form>
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText={confirmModal.confirmText}
+        onConfirm={confirmModal.onConfirm}
+        onCancel={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+        isDestructive={confirmModal.isDestructive}
+      />
     </div>
   );
 }

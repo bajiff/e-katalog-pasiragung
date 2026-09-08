@@ -8,6 +8,7 @@ import {
   SelectAllCheckbox, 
   BulkActionBar 
 } from '../../components/table';
+import { ConfirmModal } from '../../components/shared';
 import { Edit, Trash2, Plus, X } from 'lucide-react';
 import { uploadImage, deleteImage } from '../../lib/storage';
 
@@ -36,6 +37,18 @@ export function OwnersPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editItem, setEditItem] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false });
+
+  const requestConfirm = (options) => {
+    setConfirmModal({
+      ...options,
+      isOpen: true,
+      onConfirm: async () => {
+        setConfirmModal(prev => ({ ...prev, isOpen: false }));
+        if (options.onConfirm) await options.onConfirm();
+      }
+    });
+  };
 
   const loadData = async () => {
     setLoading(true);
@@ -63,24 +76,30 @@ export function OwnersPage() {
     );
   };
 
-  const handleDelete = async (item) => {
+  const handleDelete = (item) => {
     const productsCount = item.products?.[0]?.count || 0;
     if (productsCount > 0) {
       alert(`Tidak dapat menghapus owner ini karena masih memiliki ${productsCount} produk terkait.`);
       return;
     }
-    if (!window.confirm('Yakin ingin menghapus owner ini?')) return;
     
-    if (item.image_path) {
-      await deleteImage(item.image_path, 'owner-images');
-    }
-
-    await supabase.from('owners').delete().eq('id', item.id);
-    setSelectedIds(selectedIds.filter(i => i !== item.id));
-    loadData();
+    requestConfirm({
+      title: 'Hapus Owner',
+      message: 'Apakah Anda yakin ingin menghapus owner ini?',
+      confirmText: 'Ya, Hapus',
+      isDestructive: true,
+      onConfirm: async () => {
+        if (item.image_path) {
+          await deleteImage(item.image_path, 'owner-images');
+        }
+        await supabase.from('owners').delete().eq('id', item.id);
+        setSelectedIds(selectedIds.filter(i => i !== item.id));
+        loadData();
+      }
+    });
   };
 
-  const handleBulkDelete = async () => {
+  const handleBulkDelete = () => {
     const itemsToDelete = data.filter(d => selectedIds.includes(d.id));
     const invalidItems = itemsToDelete.filter(d => (d.products?.[0]?.count || 0) > 0);
     
@@ -89,15 +108,20 @@ export function OwnersPage() {
       return;
     }
 
-    if (!window.confirm(`Yakin menghapus ${selectedIds.length} owner?`)) return;
-    
-    for (const item of itemsToDelete) {
-      if (item.image_path) await deleteImage(item.image_path, 'owner-images');
-    }
-
-    await supabase.from('owners').delete().in('id', selectedIds);
-    setSelectedIds([]);
-    loadData();
+    requestConfirm({
+      title: 'Hapus Banyak Owner',
+      message: `Yakin menghapus ${selectedIds.length} owner?`,
+      confirmText: 'Ya, Hapus Semua',
+      isDestructive: true,
+      onConfirm: async () => {
+        for (const item of itemsToDelete) {
+          if (item.image_path) await deleteImage(item.image_path, 'owner-images');
+        }
+        await supabase.from('owners').delete().in('id', selectedIds);
+        setSelectedIds([]);
+        loadData();
+      }
+    });
   };
 
   const openModal = (item = null) => {
@@ -110,35 +134,42 @@ export function OwnersPage() {
     setIsModalOpen(false);
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    setIsSaving(true);
     const formData = new FormData(e.target);
     const name = formData.get('name');
     const contact_phone = formData.get('contact_phone');
     const address = formData.get('address');
     const file = formData.get('image');
 
-    let image_path = editItem?.image_path;
+    requestConfirm({
+      title: editItem ? 'Konfirmasi Update' : 'Konfirmasi Tambah',
+      message: editItem ? 'Apakah Anda yakin ingin mengupdate data owner ini?' : 'Apakah Anda yakin ingin menambahkan owner ini?',
+      confirmText: editItem ? 'Ya, Update' : 'Ya, Tambahkan',
+      onConfirm: async () => {
+        setIsSaving(true);
+        let image_path = editItem?.image_path;
 
-    if (file && file.size > 0) {
-      if (editItem?.image_path) {
-        await deleteImage(editItem.image_path, 'owner-images');
+        if (file && file.size > 0) {
+          if (editItem?.image_path) {
+            await deleteImage(editItem.image_path, 'owner-images');
+          }
+          image_path = await uploadImage(file, 'owner-images');
+        }
+
+        const payload = { name, contact_phone, address, image_path };
+
+        if (editItem) {
+          await supabase.from('owners').update(payload).eq('id', editItem.id);
+        } else {
+          await supabase.from('owners').insert([payload]);
+        }
+
+        setIsSaving(false);
+        closeModal();
+        loadData();
       }
-      image_path = await uploadImage(file, 'owner-images');
-    }
-
-    const payload = { name, contact_phone, address, image_path };
-
-    if (editItem) {
-      await supabase.from('owners').update(payload).eq('id', editItem.id);
-    } else {
-      await supabase.from('owners').insert([payload]);
-    }
-
-    setIsSaving(false);
-    closeModal();
-    loadData();
+    });
   };
 
   const isAllSelected = data.length > 0 && selectedIds.length === data.length;
@@ -273,6 +304,16 @@ export function OwnersPage() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText={confirmModal.confirmText}
+        onConfirm={confirmModal.onConfirm}
+        onCancel={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+        isDestructive={confirmModal.isDestructive}
+      />
     </div>
   );
 }

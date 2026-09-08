@@ -8,6 +8,7 @@ import {
   SelectAllCheckbox, 
   BulkActionBar 
 } from '../../components/table';
+import { ConfirmModal } from '../../components/shared';
 import { Trash2, CheckCircle, XCircle } from 'lucide-react';
 
 const sortOptions = [
@@ -30,6 +31,18 @@ export function UsersPage() {
   const [data, setData] = useState([]);
   const [totalItems, setTotalItems] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false });
+
+  const requestConfirm = (options) => {
+    setConfirmModal({
+      ...options,
+      isOpen: true,
+      onConfirm: async () => {
+        setConfirmModal(prev => ({ ...prev, isOpen: false }));
+        if (options.onConfirm) await options.onConfirm();
+      }
+    });
+  };
 
   const loadData = async () => {
     setLoading(true);
@@ -57,19 +70,26 @@ export function UsersPage() {
     );
   };
 
-  const handleDelete = async (item) => {
+  const handleDelete = (item) => {
     if (item.role === 'super_admin') {
       alert('Tidak dapat menghapus super_admin.');
       return;
     }
-    if (!window.confirm('Yakin ingin menghapus user ini?')) return;
     
-    await supabase.from('profiles').delete().eq('id', item.id);
-    setSelectedIds(selectedIds.filter(i => i !== item.id));
-    loadData();
+    requestConfirm({
+      title: 'Hapus User',
+      message: 'Apakah Anda yakin ingin menghapus user ini?',
+      confirmText: 'Ya, Hapus',
+      isDestructive: true,
+      onConfirm: async () => {
+        await supabase.from('profiles').delete().eq('id', item.id);
+        setSelectedIds(selectedIds.filter(i => i !== item.id));
+        loadData();
+      }
+    });
   };
 
-  const handleBulkDelete = async () => {
+  const handleBulkDelete = () => {
     const itemsToDelete = data.filter(d => selectedIds.includes(d.id));
     const invalidItems = itemsToDelete.filter(d => d.role === 'super_admin');
     
@@ -78,16 +98,31 @@ export function UsersPage() {
       return;
     }
 
-    if (!window.confirm(`Yakin menghapus ${selectedIds.length} user?`)) return;
-    
-    await supabase.from('profiles').delete().in('id', selectedIds);
-    setSelectedIds([]);
-    loadData();
+    requestConfirm({
+      title: 'Hapus Banyak User',
+      message: `Yakin menghapus ${selectedIds.length} user?`,
+      confirmText: 'Ya, Hapus Semua',
+      isDestructive: true,
+      onConfirm: async () => {
+        await supabase.from('profiles').delete().in('id', selectedIds);
+        setSelectedIds([]);
+        loadData();
+      }
+    });
   };
 
-  const updateStatus = async (id, status) => {
-    await supabase.from('profiles').update({ status }).eq('id', id);
-    loadData();
+  const updateStatus = (id, status) => {
+    const isApprove = status === 'approved';
+    requestConfirm({
+      title: isApprove ? 'Setujui User' : 'Tolak User',
+      message: `Apakah Anda yakin ingin ${isApprove ? 'menyetujui' : 'menolak'} user ini?`,
+      confirmText: isApprove ? 'Ya, Setujui' : 'Ya, Tolak',
+      isDestructive: !isApprove,
+      onConfirm: async () => {
+        await supabase.from('profiles').update({ status }).eq('id', id);
+        loadData();
+      }
+    });
   };
 
   const isAllSelected = data.length > 0 && selectedIds.length === data.length;
@@ -202,6 +237,16 @@ export function UsersPage() {
 
         <Pagination page={page} setPage={setPage} totalItems={totalItems} pageSize={pageSize} />
       </div>
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText={confirmModal.confirmText}
+        onConfirm={confirmModal.onConfirm}
+        onCancel={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+        isDestructive={confirmModal.isDestructive}
+      />
     </div>
   );
 }
