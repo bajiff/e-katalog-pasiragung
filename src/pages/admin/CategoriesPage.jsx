@@ -88,7 +88,12 @@ export function CategoriesPage() {
       confirmText: 'Ya, Hapus',
       isDestructive: true,
       onConfirm: async () => {
-        await supabase.from('categories').delete().eq('id', item.id);
+        const { error } = await supabase.from('categories').delete().eq('id', item.id);
+        if (error) {
+          console.error("Gagal menghapus:", error);
+          alert(`Gagal menghapus kategori: ${error.message || 'Terjadi kesalahan sistem'}`);
+          return;
+        }
         setSelectedIds(selectedIds.filter(i => i !== item.id));
         loadData();
       }
@@ -110,7 +115,12 @@ export function CategoriesPage() {
       confirmText: 'Ya, Hapus Semua',
       isDestructive: true,
       onConfirm: async () => {
-        await supabase.from('categories').delete().in('id', selectedIds);
+        const { error } = await supabase.from('categories').delete().in('id', selectedIds);
+        if (error) {
+          console.error("Gagal menghapus banyak:", error);
+          alert(`Gagal menghapus kategori: ${error.message || 'Terjadi kesalahan sistem'}`);
+          return;
+        }
         setSelectedIds([]);
         loadData();
       }
@@ -131,25 +141,35 @@ export function CategoriesPage() {
     e.preventDefault();
     const formData = new FormData(e.target);
     const name = formData.get('name');
-    const description = formData.get('description');
 
     requestConfirm({
       title: editItem ? 'Konfirmasi Update' : 'Konfirmasi Tambah',
       message: editItem ? 'Apakah Anda yakin ingin mengupdate data kategori ini?' : 'Apakah Anda yakin ingin menambahkan kategori ini?',
       confirmText: editItem ? 'Ya, Update' : 'Ya, Tambahkan',
       onConfirm: async () => {
-        setIsSaving(true);
-        const payload = { name, description };
+        try {
+          setIsSaving(true);
+          const payload = { name };
+          let resError = null;
 
-        if (editItem) {
-          await supabase.from('categories').update(payload).eq('id', editItem.id);
-        } else {
-          await supabase.from('categories').insert([payload]);
+          if (editItem) {
+            const { error } = await supabase.from('categories').update(payload).eq('id', editItem.id);
+            resError = error;
+          } else {
+            const { error } = await supabase.from('categories').insert([payload]);
+            resError = error;
+          }
+
+          if (resError) throw resError;
+
+          closeModal();
+          loadData();
+        } catch (err) {
+          console.error("Operasi gagal:", err);
+          alert(`Gagal menyimpan data: ${err.message || 'Terjadi kesalahan sistem'}`);
+        } finally {
+          setIsSaving(false);
         }
-
-        setIsSaving(false);
-        closeModal();
-        loadData();
       }
     });
   };
@@ -165,7 +185,6 @@ export function CategoriesPage() {
     />,
     'No',
     'Nama Kategori',
-    'Deskripsi',
     'Jumlah Produk',
     'Aksi'
   ];
@@ -186,7 +205,6 @@ export function CategoriesPage() {
         </td>
         <td className="px-3 py-2 text-xs text-text-muted">{(page - 1) * (pageSize === 'all' ? totalItems : pageSize) + idx + 1}</td>
         <td className="px-3 py-2 text-xs font-semibold text-text">{item.name}</td>
-        <td className="px-3 py-2 text-xs text-text-muted">{item.description || '-'}</td>
         <td className="px-3 py-2 text-xs text-text-muted">{productsCount}</td>
         <td className="px-3 py-2">
           <div className="flex items-center gap-2">
@@ -250,10 +268,6 @@ export function CategoriesPage() {
               <div>
                 <label className="block text-xs font-semibold text-text mb-1">Nama Kategori</label>
                 <input required defaultValue={editItem?.name} name="name" type="text" className="w-full px-3 py-2 border border-border rounded-sm text-xs  outline-none" />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-text mb-1">Deskripsi</label>
-                <textarea name="description" defaultValue={editItem?.description} rows="3" className="w-full px-3 py-2 border border-border rounded-sm text-xs  outline-none"></textarea>
               </div>
               <div className="pt-4 flex justify-end gap-3 border-t border-border">
                 <button type="button" onClick={closeModal} className="px-4 py-2 text-xs font-semibold text-text bg-surface border border-border rounded-sm hover:bg-gray-200 transition-colors">Batal</button>
