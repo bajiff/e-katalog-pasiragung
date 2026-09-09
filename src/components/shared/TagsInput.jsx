@@ -9,7 +9,7 @@ export function TagsInput({ name, defaultValue = [], placeholder = 'Ketik lalu t
     try {
       const parsed = JSON.parse(defaultValue);
       if (Array.isArray(parsed)) initialTags = parsed;
-    } catch(e) {}
+    } catch (e) { }
   }
 
   const [tags, setTags] = useState(initialTags);
@@ -33,8 +33,8 @@ export function TagsInput({ name, defaultValue = [], placeholder = 'Ketik lalu t
   return (
     <div className="w-full">
       <input type="hidden" name={name} value={JSON.stringify(tags)} />
-      
-      <div className="flex flex-wrap gap-2 mb-2 min-h-[24px]">
+
+      <div className="flex flex-wrap gap-2 mb-2 min-h-6">
         {tags.map((tag, idx) => (
           <div key={idx} className="flex items-center gap-1 bg-primary/10 text-primary px-2 py-1 rounded-sm text-xs font-semibold border border-primary/20">
             <span>{tag}</span>
@@ -50,14 +50,14 @@ export function TagsInput({ name, defaultValue = [], placeholder = 'Ketik lalu t
         ))}
         {tags.length === 0 && <span className="text-xs text-text-muted italic self-center">Belum ada data</span>}
       </div>
-      
+
       <input
         type="text"
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
-        className="w-full px-3 py-2 border border-border rounded-sm text-xs outline-none focus:border-primary/50 transition-colors"
+        className="w-full px-3 py-2 border rounded-sm text-xs outline-none focus:border-primary transition-colors"
       />
     </div>
   );
