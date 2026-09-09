@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
-import { Store, MapPin, Phone } from 'lucide-react';
+import { Store, MapPin, Flame } from 'lucide-react';
 import { ProductCard } from '../../components/shared';
 
 export function OwnerProfile() {
@@ -35,12 +35,12 @@ export function OwnerProfile() {
   if (!owner) return <div className="text-center py-20 text-red-600">Pemilik usaha tidak ditemukan.</div>;
 
   return (
-    <div className="container mx-auto px-4 py-12 max-w-5xl">
+    <div className="container mx-auto px-4 py-12 mt-14 max-w-5xl">
       {/* Header Profil */}
       <div className="bg-background border border-border rounded-md p-6 md:p-10 mb-12 flex flex-col md:flex-row items-center md:items-start gap-8">
         <div className="w-32 h-32 md:w-48 md:h-48 rounded-full border-4 border-surface bg-surface overflow-hidden shrink-0 flex items-center justify-center shadow-sm">
-          {owner.image_path ? (
-            <img src={owner.image_path} alt={owner.name} className="w-full h-full object-cover" />
+          {owner.image ? (
+            <img src={owner.image} alt={owner.name} className="w-full h-full object-cover" />
           ) : (
             <Store className="w-16 h-16 text-text-muted" />
           )}
@@ -58,10 +58,16 @@ export function OwnerProfile() {
             </div>
           </div>
           <a
-            href={`https://wa.me/${owner.contact_phone?.replace(/^0/, '62')}`}
-            target="_blank"
+            href={owner.contact_phone ? `https://wa.me/${owner.contact_phone.replace(/^0/, '62')}` : '#'}
+            target={owner.contact_phone ? '_blank' : '_self'}
             rel="noopener noreferrer"
             className="inline-block px-6 py-2 bg-primary text-on-primary font-bold rounded-sm hover:opacity-90 transition-opacity"
+            onClick={(e) => {
+              if (!owner.contact_phone) {
+                e.preventDefault();
+                alert('Nomor WhatsApp pemilik usaha tidak tersedia.');
+              }
+            }}
           >
             Hubungi via WhatsApp
           </a>

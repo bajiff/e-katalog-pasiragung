@@ -1,8 +1,10 @@
+import React, { useState, useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { ArrowLeft, Store } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
 import { ProductCard } from '../../components/shared';
 
 export function ProductDetail() {
-// ... existing imports ...
-
   const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [related, setRelated] = useState([]);
@@ -16,7 +18,7 @@ export function ProductDetail() {
         .select('*, categories(name), owners(*)')
         .eq('id', id)
         .single();
-      
+
       setProduct(data);
 
       if (data?.category_id) {
@@ -37,10 +39,13 @@ export function ProductDetail() {
   if (loading) return <div className="text-center py-20">Memuat detail produk...</div>;
   if (!product) return <div className="text-center py-20 text-red-600">Produk tidak ditemukan.</div>;
 
-  const waLink = `https://wa.me/${product.owners?.contact_phone?.replace(/^0/, '62')}?text=Halo%20${product.owners?.name},%20saya%20tertarik%20dengan%20produk%20${product.name}%20di%20E-Katalog%20Pasiragung.`;
+  const waNumber = product.owners?.contact_phone?.replace(/^0/, '62');
+  const waLink = waNumber 
+    ? `https://wa.me/${waNumber}?text=Halo%20${encodeURIComponent(product.owners?.name || 'Bapak/Ibu')},%20saya%20tertarik%20dengan%20produk%20${encodeURIComponent(product.name)}%20di%20E-Katalog%20Pasiragung.`
+    : '#';
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
+    <div className="container mx-auto mt-14 px-4 py-8 max-w-6xl">
       <Link to="/" className="inline-flex items-center gap-2 text-sm font-semibold text-text-muted hover:text-text mb-6 transition-colors">
         <ArrowLeft className="w-4 h-4" /> Kembali ke Katalog
       </Link>
@@ -76,8 +81,8 @@ export function ProductDetail() {
           <div className="bg-surface p-4 rounded-md border border-border flex flex-col sm:flex-row items-center justify-between gap-4 mt-auto">
             <Link to={`/owner/${product.owner_id}`} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
               <div className="w-12 h-12 rounded-full bg-background border border-border overflow-hidden flex items-center justify-center">
-                {product.owners?.image_path ? (
-                  <img src={product.owners.image_path} alt={product.owners.name} className="w-full h-full object-cover" />
+                {product.owners?.image ? (
+                  <img src={product.owners.image} alt={product.owners.name} className="w-full h-full object-cover" />
                 ) : (
                   <Store className="w-6 h-6 text-text-muted" />
                 )}
@@ -87,10 +92,10 @@ export function ProductDetail() {
                 <p className="text-sm font-bold text-text">{product.owners?.name}</p>
               </div>
             </Link>
-            
-            <a 
-              href={waLink} 
-              target="_blank" 
+
+            <a
+              href={waLink}
+              target="_blank"
               rel="noopener noreferrer"
               className="w-full sm:w-auto px-6 py-3 bg-accent text-background font-bold rounded-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
             >
