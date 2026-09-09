@@ -152,6 +152,19 @@ export function OwnersPage() {
     e.preventDefault();
     const formData = new FormData(e.target);
     const name = formData.get('name');
+    
+    let contact_phone = formData.get('contact_phone');
+    if (contact_phone) {
+      contact_phone = contact_phone.replace(/\D/g, ''); // Hanya ambil angka
+      if (contact_phone.startsWith('62')) {
+        contact_phone = '0' + contact_phone.slice(2);
+      } else if (contact_phone.startsWith('8')) {
+        contact_phone = '0' + contact_phone;
+      }
+    } else {
+      contact_phone = null;
+    }
+
     const file = formData.get('image');
 
     requestConfirm({
@@ -170,7 +183,7 @@ export function OwnersPage() {
             image_path = await uploadImage(file, 'owner-images');
           }
 
-          const payload = { name, image: image_path };
+          const payload = { name, contact_phone, image: image_path };
           let resError = null;
 
           if (editItem) {
@@ -207,6 +220,7 @@ export function OwnersPage() {
     'No',
     'Foto',
     'Nama Pemilik',
+    'WhatsApp',
     'Jumlah Produk',
     'Aksi'
   ];
@@ -214,6 +228,16 @@ export function OwnersPage() {
   const renderRow = (item, idx) => {
     const productsCount = item.products?.[0]?.count || 0;
     const canDelete = productsCount === 0;
+
+    let displayPhone = '-';
+    if (item.contact_phone) {
+      displayPhone = item.contact_phone.replace(/\D/g, '');
+      if (displayPhone.startsWith('62')) {
+        displayPhone = '0' + displayPhone.slice(2);
+      } else if (displayPhone.startsWith('8')) {
+        displayPhone = '0' + displayPhone;
+      }
+    }
 
     return (
       <tr key={item.id} className="hover:bg-surface/50 transition-colors">
@@ -234,6 +258,7 @@ export function OwnersPage() {
           )}
         </td>
         <td className="px-3 py-2 text-xs font-semibold text-text">{item.name}</td>
+        <td className="px-3 py-2 text-xs text-text-muted">{displayPhone}</td>
         <td className="px-3 py-2 text-xs text-text-muted">{productsCount}</td>
         <td className="px-3 py-2">
           <div className="flex items-center gap-2">
@@ -297,6 +322,10 @@ export function OwnersPage() {
               <div>
                 <label className="block text-xs font-semibold text-text mb-1">Nama Pemilik</label>
                 <input required defaultValue={editItem?.name} name="name" type="text" className="w-full px-3 py-2 border border-border rounded-sm text-xs  outline-none" />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-text mb-1">No. WhatsApp</label>
+                <input defaultValue={editItem?.contact_phone} name="contact_phone" type="text" className="w-full px-3 py-2 border border-border rounded-sm text-xs  outline-none" placeholder="Contoh: 08123456789" />
               </div>
               <div>
                 <label className="block text-xs font-semibold text-text mb-1">Foto Owner {editItem?.image && '(Kosongkan jika tidak diubah)'}</label>
