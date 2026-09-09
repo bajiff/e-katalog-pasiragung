@@ -38,16 +38,16 @@ export function ProfilePage() {
         setMessage({ text: '', type: '' });
 
         try {
-          let avatar_url = profile?.avatar_url;
+          let avatar = profile?.avatar;
 
           if (file && file.size > 0) {
-            if (profile?.avatar_url) {
-              await deleteImage(profile.avatar_url, 'owner-images');
+            if (profile?.avatar) {
+              await deleteImage(profile.avatar, 'owner-images');
             }
-            avatar_url = await uploadImage(file, 'owner-images');
+            avatar = await uploadImage(file, 'owner-images');
           }
 
-          const { error } = await supabase.from('profiles').update({ name, avatar_url }).eq('id', profile.id);
+          const { error } = await supabase.from('profiles').update({ name, avatar }).eq('id', profile.id);
 
           if (error) throw error;
 
@@ -118,8 +118,8 @@ export function ProfilePage() {
           <form onSubmit={handleProfileSubmit} className="space-y-4">
             <div className="flex items-center gap-4 mb-4">
               <div className="w-16 h-16 rounded-full bg-surface border border-border flex items-center justify-center overflow-hidden">
-                {profile?.avatar_url ? (
-                  <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                {profile?.avatar ? (
+                  <img src={profile.avatar} alt="Avatar" className="w-full h-full object-cover" />
                 ) : (
                   <User className="w-8 h-8 text-text-muted" />
                 )}

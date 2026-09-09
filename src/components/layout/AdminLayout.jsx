@@ -45,9 +45,8 @@ export function AdminLayout() {
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex items-center gap-3 px-3 py-2 rounded-sm text-sm font-body transition-colors ${
-                  isActive ? 'bg-primary text-on-primary' : 'text-text hover:bg-surface'
-                }`}
+                className={`flex items-center gap-3 px-3 py-2 rounded-sm text-sm font-body transition-colors ${isActive ? 'bg-primary text-on-primary' : 'text-text hover:bg-surface'
+                  }`}
               >
                 <Icon className="w-4 h-4" />
                 {item.label}
@@ -58,9 +57,8 @@ export function AdminLayout() {
         <div className="p-4 border-t border-border">
           <Link
             to="/admin/profile"
-            className={`flex items-center gap-3 px-3 py-2 rounded-sm text-sm font-body transition-colors mb-2 ${
-              location.pathname === '/admin/profile' ? 'bg-primary text-on-primary' : 'text-text hover:bg-surface'
-            }`}
+            className={`flex items-center gap-3 px-3 py-2 rounded-sm text-sm font-body transition-colors mb-2 ${location.pathname === '/admin/profile' ? 'bg-primary text-on-primary' : 'text-text hover:bg-surface'
+              }`}
           >
             <User className="w-4 h-4" />
             Profil
@@ -78,7 +76,7 @@ export function AdminLayout() {
       {/* Mobile Sidebar Overlay */}
       {isSidebarOpen && (
         <div className="fixed inset-0 z-40 bg-text/50 md:hidden" onClick={toggleSidebar}>
-          <aside 
+          <aside
             className="flex flex-col w-64 h-full bg-background border-r border-border"
             onClick={(e) => e.stopPropagation()}
           >
@@ -97,9 +95,8 @@ export function AdminLayout() {
                     key={item.path}
                     to={item.path}
                     onClick={toggleSidebar}
-                    className={`flex items-center gap-3 px-3 py-2 rounded-sm text-sm font-body transition-colors ${
-                      isActive ? 'bg-primary text-on-primary' : 'text-text hover:bg-surface'
-                    }`}
+                    className={`flex items-center gap-3 px-3 py-2 rounded-sm text-sm font-body transition-colors ${isActive ? 'bg-primary text-on-primary' : 'text-text hover:bg-surface'
+                      }`}
                   >
                     <Icon className="w-4 h-4" />
                     {item.label}
@@ -111,9 +108,8 @@ export function AdminLayout() {
               <Link
                 to="/admin/profile"
                 onClick={toggleSidebar}
-                className={`flex items-center gap-3 px-3 py-2 rounded-sm text-sm font-body transition-colors mb-2 ${
-                  location.pathname === '/admin/profile' ? 'bg-primary text-on-primary' : 'text-text hover:bg-surface'
-                }`}
+                className={`flex items-center gap-3 px-3 py-2 rounded-sm text-sm font-body transition-colors mb-2 ${location.pathname === '/admin/profile' ? 'bg-primary text-on-primary' : 'text-text hover:bg-surface'
+                  }`}
               >
                 <User className="w-4 h-4" />
                 Profil
@@ -151,8 +147,8 @@ export function AdminLayout() {
               <p className="text-xs font-body text-text-muted capitalize">{profile?.role?.replace('_', ' ')}</p>
             </div>
             <div className="w-8 h-8 rounded-full bg-surface border border-border flex items-center justify-center overflow-hidden">
-              {profile?.avatar_url ? (
-                <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+              {profile?.avatar ? (
+                <img src={profile.avatar} alt="Avatar" className="w-full h-full object-cover" />
               ) : (
                 <User className="w-4 h-4 text-text-muted" />
               )}
