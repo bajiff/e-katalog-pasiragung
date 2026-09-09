@@ -8,7 +8,7 @@ import {
   SelectAllCheckbox,
   BulkActionBar
 } from '../../components/table';
-import { ConfirmModal } from '../../components/shared';
+import { ConfirmModal, TagsInput } from '../../components/shared';
 import { Edit, Trash2, Plus, X } from 'lucide-react';
 import { uploadImage, deleteImage } from '../../lib/storage';
 
@@ -159,6 +159,34 @@ export function ProductsPage() {
     const price = formData.get('price');
     const stock = formData.get('stock');
     const description = formData.get('description');
+    // New fields processing
+    let nib = formData.get('nib') || null;
+    if (nib && nib.length !== 13) {
+      alert('NIB harus terdiri dari tepat 13 digit angka.');
+      return;
+    }
+
+    let halal_certificate = formData.get('halal_certificate') || null;
+    if (halal_certificate && halal_certificate.length !== 17) {
+      alert('Sertifikat Halal harus terdiri dari tepat 17 digit angka.');
+      return;
+    }
+
+    let flavor_variants = null;
+    try {
+      const parsed = JSON.parse(formData.get('flavor_variants') || '[]');
+      if (Array.isArray(parsed) && parsed.length > 0) flavor_variants = parsed;
+    } catch(e) {}
+
+    let compositions = null;
+    try {
+      const parsed = JSON.parse(formData.get('compositions') || '[]');
+      if (Array.isArray(parsed) && parsed.length > 0) compositions = parsed;
+    } catch(e) {}
+
+    const capacity = formData.get('capacity');
+    const unit = formData.get('unit');
+
     const file = formData.get('image');
 
     requestConfirm({
@@ -184,14 +212,15 @@ export function ProductsPage() {
             price: Number(price),
             stock: Number(stock),
             description,
+            // contact_phone TIDAK dikirim ke products karena kolom tidak ada
+            nib,
+            halal_certificate,
+            flavor_variants,
+            compositions,
+            capacity: capacity ? parseInt(capacity, 10) : null,
+            unit: unit || null,
             image_path
           };
-
-          if (!editItem) {
-            payload.production_system = 'ready_stock';
-            payload.capacity = 1;
-            payload.unit = 'pcs';
-          }
 
           let resError = null;
 
@@ -342,9 +371,64 @@ export function ProductsPage() {
                   <input required defaultValue={editItem?.stock} name="stock" type="number" min="0" className="w-full px-3 py-2 border border-border rounded-sm text-xs  outline-none" />
                 </div>
               </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-text mb-1">Kapasitas</label>
+                  <input required defaultValue={editItem?.capacity} name="capacity" type="number" min="1" className="w-full px-3 py-2 border border-border rounded-sm text-xs outline-none" />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-text mb-1">Satuan</label>
+                  <select name="unit" defaultValue={editItem?.unit || 'pcs'} className="w-full px-3 py-2 border border-border rounded-sm text-xs outline-none">
+                    <option value="pcs">pcs</option>
+                    <option value="g">g</option>
+                    <option value="kg">kg</option>
+                    <option value="buah">buah</option>
+                    <option value="butir">butir</option>
+                    <option value="ml">ml</option>
+                    <option value="liter">liter</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-text mb-1">Varian Rasa</label>
+                <TagsInput name="flavor_variants" defaultValue={editItem?.flavor_variants} placeholder="Ketik varian rasa lalu tekan Enter" />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-text mb-1">Komposisi</label>
+                <TagsInput name="compositions" defaultValue={editItem?.compositions} placeholder="Ketik bahan/komposisi lalu tekan Enter" />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-text mb-1">NIB (Opsional)</label>
+                  <input 
+                    defaultValue={editItem?.nib} 
+                    name="nib" 
+                    type="text" 
+                    inputMode="numeric" 
+                    maxLength={13} 
+                    onChange={(e) => e.target.value = e.target.value.replace(/\D/g, '')}
+                    placeholder="13 Digit Angka" 
+                    className="w-full px-3 py-2 border border-border rounded-sm text-xs outline-none" 
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-text mb-1">Sertifikat Halal (Opsional)</label>
+                  <input 
+                    defaultValue={editItem?.halal_certificate} 
+                    name="halal_certificate" 
+                    type="text" 
+                    inputMode="numeric" 
+                    maxLength={17} 
+                    onChange={(e) => e.target.value = e.target.value.replace(/\D/g, '')}
+                    placeholder="17 Digit Angka" 
+                    className="w-full px-3 py-2 border border-border rounded-sm text-xs outline-none" 
+                  />
+                </div>
+              </div>
               <div>
                 <label className="block text-xs font-semibold text-text mb-1">Deskripsi</label>
-                <textarea name="description" defaultValue={editItem?.description} rows="3" className="w-full px-3 py-2 border border-border rounded-sm text-xs  outline-none"></textarea>
+                <textarea name="description" defaultValue={editItem?.description} rows="3" className="w-full px-3 py-2 border border-border rounded-sm text-xs outline-none"></textarea>
               </div>
               <div>
                 <label className="block text-xs font-semibold text-text mb-1">Gambar Produk {editItem?.image_path && '(Kosongkan jika tidak diubah)'}</label>
