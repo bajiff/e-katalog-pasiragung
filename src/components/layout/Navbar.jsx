@@ -63,7 +63,7 @@ export const Navbar = () => {
   const loginBg = isScrolled ? 'bg-primary text-on-primary' : 'bg-white text-primary hover:bg-gray-100';
 
   return (
-    <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-base ${bgColor} h-16 md:h-20 flex items-center`}>
+    <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-base ${bgColor} h-16 flex items-center`}>
       <div className="container mx-auto px-4 flex items-center justify-center gap-5">
 
         {/* Logo */}
