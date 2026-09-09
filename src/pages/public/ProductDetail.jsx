@@ -39,9 +39,16 @@ export function ProductDetail() {
   if (loading) return <div className="text-center py-20">Memuat detail produk...</div>;
   if (!product) return <div className="text-center py-20 text-red-600">Produk tidak ditemukan.</div>;
 
-  const waNumber = product.owners?.contact_phone?.replace(/^0/, '62');
+  let waNumber = product.owners?.contact_phone || '';
+  if (waNumber) {
+    waNumber = waNumber.replace(/\D/g, '');
+    if (waNumber.startsWith('0')) waNumber = '62' + waNumber.slice(1);
+    else if (waNumber.startsWith('8')) waNumber = '62' + waNumber;
+  }
+  
+  const waText = `Halo ${product.owners?.name || 'Bapak/Ibu'}! Saya tertarik order menu yang ada di website. Berikut detail pesanan saya:\n\nMenu & Jumlah: ${product.name}\nNama Penerima:\nNomor HP:\nAlamat Kirim:\nTanggal & Jam Pengantaran:\nCatatan Khusus: (Misal: pedas/tidak pakai bawang)\nMau Transfer Via Apa: `;
   const waLink = waNumber 
-    ? `https://wa.me/${waNumber}?text=Halo%20${encodeURIComponent(product.owners?.name || 'Bapak/Ibu')},%20saya%20tertarik%20dengan%20produk%20${encodeURIComponent(product.name)}%20di%20E-Katalog%20Pasiragung.`
+    ? `https://wa.me/${waNumber}?text=${encodeURIComponent(waText)}`
     : '#';
 
   return (

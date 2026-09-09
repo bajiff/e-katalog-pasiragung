@@ -4,3 +4,4 @@ export * from './OwnerCard';
 export * from './ProductCard';
 export * from './MapEmbed';
 export * from './ConfirmModal';
+export * from './TagsInput';

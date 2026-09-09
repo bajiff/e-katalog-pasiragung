@@ -57,20 +57,30 @@ export function OwnerProfile() {
               <span>Ds. Pasiragung, Kec. Hantara, Kab. Kuningan</span>
             </div>
           </div>
-          <a
-            href={owner.contact_phone ? `https://wa.me/${owner.contact_phone.replace(/^0/, '62')}` : '#'}
-            target={owner.contact_phone ? '_blank' : '_self'}
-            rel="noopener noreferrer"
-            className="inline-block px-6 py-2 bg-primary text-on-primary font-bold rounded-sm hover:opacity-90 transition-opacity"
-            onClick={(e) => {
-              if (!owner.contact_phone) {
-                e.preventDefault();
-                alert('Nomor WhatsApp pemilik usaha tidak tersedia.');
-              }
-            }}
-          >
-            Hubungi via WhatsApp
-          </a>
+          {(() => {
+            let waNumber = owner.contact_phone || '';
+            if (waNumber) {
+              waNumber = waNumber.replace(/\D/g, '');
+              if (waNumber.startsWith('0')) waNumber = '62' + waNumber.slice(1);
+              else if (waNumber.startsWith('8')) waNumber = '62' + waNumber;
+            }
+            return (
+              <a
+                href={waNumber ? `https://wa.me/${waNumber}?text=${encodeURIComponent(`Halo ${owner.name}! Saya tertarik order menu yang ada di website. Berikut detail pesanan saya:\n\nMenu & Jumlah:\nNama Penerima:\nNomor HP:\nAlamat Kirim:\nTanggal & Jam Pengantaran:\nCatatan Khusus: (Misal: pedas/tidak pakai bawang)\nMau Transfer Via Apa: `)}` : '#'}
+                target={waNumber ? '_blank' : '_self'}
+                rel="noopener noreferrer"
+                className="inline-block px-6 py-2 bg-primary text-on-primary font-bold rounded-sm hover:opacity-90 transition-opacity"
+                onClick={(e) => {
+                  if (!waNumber) {
+                    e.preventDefault();
+                    alert('Nomor WhatsApp pemilik usaha tidak tersedia.');
+                  }
+                }}
+              >
+                Hubungi via WhatsApp
+              </a>
+            );
+          })()}
         </div>
       </div>
 
