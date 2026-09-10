@@ -3,17 +3,17 @@ import heroImage from '../../assets/hero-1.webp';
 
 export const HeroSection = () => {
   return (
-    <section id="hero" className="relative w-full bg-gray-900 overflow-hidden flex flex-col justify-center min-h-[100svh] md:min-h-[80vh]">
+    <section id="hero" className="relative w-full bg-gray-900 overflow-hidden flex flex-col justify-center min-h-svh md:min-h-[80vh]">
       {/* Background Image Container */}
       <div className="absolute inset-0 z-0 flex items-start md:items-center justify-center">
-         <div 
-           className="w-full h-full bg-no-repeat bg-contain md:bg-cover bg-top md:bg-center opacity-70 md:opacity-50"
-           style={{ backgroundImage: `url(${heroImage})` }}
-         />
+        <div
+          className="w-full h-full bg-no-repeat bg-contain md:bg-cover bg-top md:bg-center opacity-70 md:opacity-50"
+          style={{ backgroundImage: `url(${heroImage})` }}
+        />
       </div>
 
       {/* Content Container */}
-      <div className="relative z-10 py-16 px-4 flex flex-col items-center justify-end md:justify-center flex-grow text-center pb-20 md:pb-0">
+      <div className="relative z-10 py-16 px-4 flex flex-col items-center justify-end md:justify-center grow text-center pb-20 md:pb-0">
         <div className="max-w-4xl mx-auto mt-[40vh] md:mt-0">
           <h1 className="font-display font-bold text-4xl sm:text-5xl md:text-6xl lg:text-[72px] leading-[1.1] tracking-tight mb-6 text-white drop-shadow-lg">
             E-Katalog UMKM Desa Pasiragung
