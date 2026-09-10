@@ -21,8 +21,8 @@ export const AboutSection = () => {
   }, []);
 
   return (
-    <section id="about" className="py-20 px-4 bg-background">
-      <div className="container mx-auto max-w-6xl">
+    <section id="about" className="md:container mx-auto py-20 px-4 bg-background">
+      <div className=" mx-auto max-w-6xl">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-12">
           {/* Text Content */}
           <div className="order-2 md:order-1">

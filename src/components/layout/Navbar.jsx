@@ -59,14 +59,14 @@ export const Navbar = () => {
 
   const bgColor = isScrolled ? 'bg-background shadow-sm border-b border-border' : 'bg-transparent';
   const textColor = isScrolled ? 'text-text' : 'text-black';
-  const loginBg = isScrolled ? 'bg-primary text-on-primary' : 'bg-white text-primary hover:bg-gray-100';
+  const loginBg = isScrolled ? 'bg-primary text-on-primary' : 'bg-black text-green-500 hover:bg-primary hover:text-on-primary';
 
   return (
     <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-base ${bgColor} h-16 flex items-center`}>
       <div className="container mx-auto px-4 flex items-center justify-center gap-5">
 
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
+        <Link to="/" className="flex items-center gap-2 hover:opacity-100 transition-opacity">
           <img src={logo} alt="Logo Pasiragung" className="h-10 w-auto" />
         </Link>
 
@@ -138,7 +138,7 @@ export const Navbar = () => {
           </Link>
           <Link
             to="/register"
-            className="w-full text-center px-4 py-3 bg-primary text-on-primary rounded-sm text-sm font-bold hover:opacity-90 transition-opacity"
+            className="w-full text-center px-4 py-3 bg-primary text-on-primary rounded-sm text-sm font-bold hover:bg-black hover:text-primary transition-opacity"
             onClick={() => setIsMobileMenuOpen(false)}
           >
             Sign up

@@ -22,19 +22,19 @@ export const OwnersSection = () => {
   }, [search]);
 
   return (
-    <section id="owners" className="py-20 px-4 bg-surface border-t border-b border-border">
-      <div className="container mx-auto">
+    <section id="owners" className="md:container py-20 px-4 bg-surface border-t border-b border-border">
+      <div className=" mx-auto">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
-          <SectionHeading 
-            title="Pelaku Usaha Kami" 
+          <SectionHeading
+            title="Pelaku Usaha Kami"
             subtitle="Kenali warga Pasiragung di balik produk-produk unggulan ini."
             className="mb-0"
           />
           <div className="w-full md:w-72">
-            <SearchInput 
-              value={search} 
-              onChange={(e) => setSearch(e.target.value)} 
-              placeholder="Cari pemilik usaha..." 
+            <SearchInput
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Cari pemilik usaha..."
             />
           </div>
         </div>
@@ -46,7 +46,7 @@ export const OwnersSection = () => {
         ) : (
           <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 hide-scrollbar scroll-smooth">
             {owners.map(owner => (
-              <div key={owner.id} className="snap-start shrink-0 w-[160px] sm:w-[200px]">
+              <div key={owner.id} className="snap-start shrink-0 w-40 sm:w-50">
                 <OwnerCard owner={owner} />
               </div>
             ))}
