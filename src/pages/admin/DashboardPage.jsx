@@ -3,6 +3,8 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 import { Package, Grid, Users, UserCog, UserCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { ExportMenu } from '../../components/shared';
+import { exportToExcel, exportToCSV, exportToPDF } from '../../utils/exportUtils';
 
 export function DashboardPage() {
   const { profile } = useAuth();
@@ -14,6 +16,7 @@ export function DashboardPage() {
     approvedAdmins: 0
   });
   const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -80,11 +83,38 @@ export function DashboardPage() {
     );
   }
 
+  const exportColumns = [
+    { header: 'Keterangan', accessor: (row) => row.label },
+    { header: 'Total Data', accessor: (row) => row.value },
+  ];
+
+  const handleExport = (type) => {
+    try {
+      setExporting(true);
+      const dataToExport = cards.map(c => ({ label: c.label, value: c.value }));
+      const filename = `Data_Dashboard_${new Date().toISOString().split('T')[0]}`;
+      
+      if (type === 'excel') exportToExcel(dataToExport, exportColumns, filename);
+      else if (type === 'csv') exportToCSV(dataToExport, exportColumns, filename);
+      else if (type === 'pdf') exportToPDF(dataToExport, exportColumns, filename, 'Laporan Data Dashboard');
+    } catch (err) {
+      console.error(err);
+      alert('Gagal mengekspor data dashboard.');
+    } finally {
+      setExporting(false);
+    }
+  };
+
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-display font-bold text-text">Dashboard</h1>
-        <p className="text-sm font-body text-text-muted">Selamat datang kembali, {profile?.name}!</p>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+        <div>
+          <h1 className="text-2xl font-display font-bold text-text">Dashboard</h1>
+          <p className="text-sm font-body text-text-muted">Selamat datang kembali, {profile?.name}!</p>
+        </div>
+        <div className="w-full sm:w-auto">
+          <ExportMenu onExport={handleExport} loading={exporting} />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

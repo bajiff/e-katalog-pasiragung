@@ -8,8 +8,9 @@ import {
   SelectAllCheckbox,
   BulkActionBar
 } from '../../components/table';
-import { ConfirmModal } from '../../components/shared';
-import { Trash2, CheckCircle, XCircle } from 'lucide-react';
+import { ConfirmModal, ExportMenu } from '../../components/shared';
+import { CheckCircle, XCircle, Trash2 } from 'lucide-react';
+import { exportToExcel, exportToCSV, exportToPDF } from '../../utils/exportUtils';
 
 const sortOptions = [
   { value: 'newest', label: 'Terbaru' },
@@ -31,6 +32,7 @@ export function UsersPage() {
   const [data, setData] = useState([]);
   const [totalItems, setTotalItems] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false });
 
   const requestConfirm = (options) => {
@@ -58,7 +60,7 @@ export function UsersPage() {
 
   const handleSelectAll = (e) => {
     if (e.target.checked) {
-      setSelectedIds(data.map(item => item.id));
+      setSelectedIds(data.filter(d => d.role !== 'super_admin').map(item => item.id));
     } else {
       setSelectedIds([]);
     }
@@ -109,16 +111,43 @@ export function UsersPage() {
       confirmText: 'Ya, Hapus Semua',
       isDestructive: true,
       onConfirm: async () => {
-        const { error } = await supabase.from('profiles').delete().in('id', selectedIds);
-        if (error) {
-          console.error("Gagal menghapus banyak user:", error);
-          alert(`Gagal menghapus user: ${error.message || 'Terjadi kesalahan sistem'}`);
-          return;
+        try {
+          const { error } = await supabase.from('profiles').delete().in('id', selectedIds);
+          if (error) throw error;
+          setSelectedIds([]);
+          loadData();
+        } catch (err) {
+          console.error("Gagal menghapus banyak pengguna:", err);
+          alert(`Gagal menghapus pengguna: ${err.message || 'Terjadi kesalahan sistem'}`);
         }
-        setSelectedIds([]);
-        loadData();
       }
     });
+  };
+
+  const exportColumns = [
+    { header: 'ID', accessor: (row) => row.id },
+    { header: 'Nama', accessor: (row) => row.name },
+    { header: 'Email', accessor: (row) => row.email || '-' },
+    { header: 'Role', accessor: (row) => row.role?.replace('_', ' ') },
+    { header: 'Status', accessor: (row) => row.status },
+  ];
+
+  const handleExport = async (type) => {
+    try {
+      setExporting(true);
+      const { data, error } = await fetchData({ exportMode: true });
+      if (error) throw error;
+      
+      const filename = `Data_Pengguna_${new Date().toISOString().split('T')[0]}`;
+      if (type === 'excel') exportToExcel(data, exportColumns, filename);
+      else if (type === 'csv') exportToCSV(data, exportColumns, filename);
+      else if (type === 'pdf') exportToPDF(data, exportColumns, filename, 'Laporan Data Pengguna');
+    } catch (err) {
+      console.error(err);
+      alert('Gagal mengekspor data.');
+    } finally {
+      setExporting(false);
+    }
   };
 
   const updateStatus = (id, status) => {
@@ -162,7 +191,7 @@ export function UsersPage() {
 
     return (
       <tr key={item.id} className="hover:bg-surface/50 transition-colors">
-        <td className="px-3 py-2">
+        <td className="px-2 py-1.5">
           <input
             type="checkbox"
             checked={selectedIds.includes(item.id)}
@@ -171,11 +200,11 @@ export function UsersPage() {
             className="w-3.5 h-3.5 accent-primary cursor-pointer disabled:opacity-50"
           />
         </td>
-        <td className="px-3 py-2 text-xs text-text-muted">{(page - 1) * (pageSize === 'all' ? totalItems : pageSize) + idx + 1}</td>
-        <td className="px-3 py-2 text-xs font-semibold text-text">{item.name}</td>
-        <td className="px-3 py-2 text-xs text-text-muted">{item.email || '-'}</td>
-        <td className="px-3 py-2 text-xs capitalize text-text-muted">{item.role?.replace('_', ' ')}</td>
-        <td className="px-3 py-2 text-xs">
+        <td className="px-2 py-1.5 text-xs text-text-muted">{(page - 1) * (pageSize === 'all' ? totalItems : pageSize) + idx + 1}</td>
+        <td className="px-2 py-1.5 text-xs font-semibold text-text max-w-[200px] truncate">{item.name}</td>
+        <td className="px-2 py-1.5 text-xs text-text-muted max-w-[200px] truncate">{item.email || '-'}</td>
+        <td className="px-2 py-1.5 text-xs capitalize text-text-muted">{item.role?.replace('_', ' ')}</td>
+        <td className="px-2 py-1.5 text-xs">
           <span className={`px-2 py-1 rounded-sm font-semibold ${item.status === 'approved' ? 'bg-green-100 text-green-700' :
               item.status === 'rejected' ? 'bg-red-100 text-red-700' :
                 'bg-yellow-100 text-yellow-700'
@@ -183,7 +212,7 @@ export function UsersPage() {
             {item.status}
           </span>
         </td>
-        <td className="px-3 py-2">
+        <td className="px-2 py-1.5">
           {!isSuperAdmin && (
             <div className="flex items-center gap-2">
               {item.status !== 'approved' && (
@@ -220,22 +249,25 @@ export function UsersPage() {
 
   return (
     <div>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
         <div>
           <h1 className="text-2xl font-display font-bold text-text">Manajemen Pengguna</h1>
           <p className="text-sm font-body text-text-muted">Persetujuan admin baru oleh Super Admin.</p>
         </div>
 
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="border border-border rounded-sm px-3 py-2 text-xs bg-background outline-none min-w-37.5"
-        >
-          <option value="all">Semua Status</option>
-          <option value="pending">Pending</option>
-          <option value="approved">Approved</option>
-          <option value="rejected">Rejected</option>
-        </select>
+        <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto mt-4 sm:mt-0">
+          <ExportMenu onExport={handleExport} loading={exporting} />
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="border border-border rounded-sm px-3 py-2 text-xs bg-background outline-none min-w-[150px] w-full sm:w-auto"
+          >
+            <option value="all">Semua Status</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
       </div>
 
       <div className="bg-background border border-border rounded-md p-4">

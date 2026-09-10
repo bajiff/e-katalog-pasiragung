@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../context/AuthContext';
 import { useTableQuery } from '../../hooks/useTableQuery';
 import {
   DataTable,
@@ -8,9 +9,10 @@ import {
   SelectAllCheckbox,
   BulkActionBar
 } from '../../components/table';
-import { ConfirmModal, TagsInput } from '../../components/shared';
+import { ConfirmModal, TagsInput, ImageUpload, ExportMenu } from '../../components/shared';
 import { Edit, Trash2, Plus, X } from 'lucide-react';
 import { uploadImage, deleteImage } from '../../lib/storage';
+import { exportToExcel, exportToCSV, exportToPDF } from '../../utils/exportUtils';
 
 const sortOptions = [
   { value: 'newest', label: 'Terbaru' },
@@ -22,6 +24,7 @@ const sortOptions = [
 ];
 
 export function ProductsPage() {
+  const { user } = useAuth();
   const {
     search, setSearch, sort, setSort, page, setPage, pageSize, setPageSize,
     selectedIds, setSelectedIds, fetchData
@@ -34,6 +37,7 @@ export function ProductsPage() {
   const [data, setData] = useState([]);
   const [totalItems, setTotalItems] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
 
   const [categories, setCategories] = useState([]);
   const [owners, setOwners] = useState([]);
@@ -42,6 +46,12 @@ export function ProductsPage() {
   const [editItem, setEditItem] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false });
+
+  // State for real-time validation feedback
+  const [nibLength, setNibLength] = useState(0);
+  const [halalLength, setHalalLength] = useState(0);
+  const [nameLength, setNameLength] = useState(0);
+  const [descLength, setDescLength] = useState(0);
 
   const requestConfirm = (options) => {
     setConfirmModal({
@@ -140,8 +150,39 @@ export function ProductsPage() {
     });
   };
 
+  const exportColumns = [
+    { header: 'ID', accessor: (row) => row.id },
+    { header: 'Nama Produk', accessor: (row) => row.name },
+    { header: 'Kategori', accessor: (row) => row.categories?.name || '-' },
+    { header: 'Owner', accessor: (row) => row.owners?.name || '-' },
+    { header: 'Harga (Rp)', accessor: (row) => row.price },
+    { header: 'Stok', accessor: (row) => row.stock },
+  ];
+
+  const handleExport = async (type) => {
+    try {
+      setExporting(true);
+      const { data, error } = await fetchData({ exportMode: true });
+      if (error) throw error;
+      
+      const filename = `Data_Produk_${new Date().toISOString().split('T')[0]}`;
+      if (type === 'excel') exportToExcel(data, exportColumns, filename);
+      else if (type === 'csv') exportToCSV(data, exportColumns, filename);
+      else if (type === 'pdf') exportToPDF(data, exportColumns, filename, 'Laporan Data Produk');
+    } catch (err) {
+      console.error(err);
+      alert('Gagal mengekspor data.');
+    } finally {
+      setExporting(false);
+    }
+  };
+
   const openModal = (item = null) => {
     setEditItem(item);
+    setNibLength(item?.nib?.length || 0);
+    setHalalLength(item?.halal_certificate?.length || 0);
+    setNameLength(item?.name?.length || 0);
+    setDescLength(item?.description?.length || 0);
     setIsModalOpen(true);
   };
 
@@ -209,7 +250,7 @@ export function ProductsPage() {
             name,
             category_id: category_id || null,
             owner_id: owner_id || null,
-            price: Number(price),
+            price: Number(price.replace(/\D/g, '')),
             stock: Number(stock),
             description,
             // contact_phone TIDAK dikirim ke products karena kolom tidak ada
@@ -228,6 +269,7 @@ export function ProductsPage() {
             const { error } = await supabase.from('products').update(payload).eq('id', editItem.id);
             resError = error;
           } else {
+            payload.created_by = user?.id; // Append created_by specifically for new inserts
             const { error } = await supabase.from('products').insert([payload]);
             resError = error;
           }
@@ -267,7 +309,7 @@ export function ProductsPage() {
 
   const renderRow = (item, idx) => (
     <tr key={item.id} className="hover:bg-surface/50 transition-colors">
-      <td className="px-3 py-2">
+      <td className="px-2 py-1.5">
         <input
           type="checkbox"
           checked={selectedIds.includes(item.id)}
@@ -275,19 +317,19 @@ export function ProductsPage() {
           className="w-3.5 h-3.5 accent-primary cursor-pointer"
         />
       </td>
-      <td className="px-3 py-2 text-xs text-text-muted">{(page - 1) * (pageSize === 'all' ? totalItems : pageSize) + idx + 1}</td>
-      <td className="px-3 py-2">
+      <td className="px-2 py-1.5 text-xs text-text-muted">{(page - 1) * (pageSize === 'all' ? totalItems : pageSize) + idx + 1}</td>
+      <td className="px-2 py-1.5">
         {item.image_path ? (
           <img src={item.image_path} alt={item.name} className="w-10 h-10 object-cover rounded-sm border border-border" />
         ) : (
           <div className="w-10 h-10 bg-surface rounded-sm border border-border flex items-center justify-center text-xs text-text-muted">No Img</div>
         )}
       </td>
-      <td className="px-3 py-2 text-xs font-semibold text-text">{item.name}</td>
-      <td className="px-3 py-2 text-xs text-text-muted">{item.categories?.name || '-'}</td>
-      <td className="px-3 py-2 text-xs text-text-muted">{item.owners?.name || '-'}</td>
-      <td className="px-3 py-2 text-xs font-semibold text-text">Rp {item.price?.toLocaleString('id-ID')}</td>
-      <td className="px-3 py-2 text-xs text-text-muted">{item.stock}</td>
+      <td className="px-2 py-1.5 text-xs font-semibold text-text max-w-[200px] truncate">{item.name}</td>
+      <td className="px-2 py-1.5 text-xs text-text-muted max-w-[150px] truncate">{item.categories?.name || '-'}</td>
+      <td className="px-2 py-1.5 text-xs text-text-muted max-w-[150px] truncate">{item.owners?.name || '-'}</td>
+      <td className="px-2 py-1.5 text-xs font-semibold text-text">Rp {item.price?.toLocaleString('id-ID')}</td>
+      <td className="px-2 py-1.5 text-xs text-text-muted">{item.stock}</td>
       <td className="px-3 py-2">
         <div className="flex items-center gap-2">
           <button onClick={() => openModal(item)} className="p-1.5 text-primary hover:bg-primary/10 rounded-sm transition-colors">
@@ -303,18 +345,21 @@ export function ProductsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
         <div>
           <h1 className="text-2xl font-display font-bold text-text">Manajemen Produk</h1>
           <p className="text-sm font-body text-text-muted">Daftar dan kelola produk UMKM.</p>
         </div>
-        <button
-          onClick={() => openModal()}
-          className="flex items-center gap-2 bg-primary text-on-primary px-4 py-2 rounded-sm text-xs font-semibold hover:opacity-90 transition-opacity"
-        >
-          <Plus className="w-4 h-4" />
-          Tambah Produk
-        </button>
+        <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto mt-4 sm:mt-0">
+          <ExportMenu onExport={handleExport} loading={exporting} />
+          <button
+            onClick={() => openModal()}
+            className="flex items-center justify-center gap-2 bg-primary text-on-primary px-4 py-2 rounded-sm text-xs font-semibold hover:opacity-90 transition-opacity w-full sm:w-auto"
+          >
+            <Plus className="w-4 h-4" />
+            Tambah Produk
+          </button>
+        </div>
       </div>
 
       <div className="bg-background border border-border rounded-md p-4">
@@ -343,7 +388,18 @@ export function ProductsPage() {
             <form onSubmit={handleSubmit} className="p-4 overflow-y-auto space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-text mb-1">Nama Produk</label>
-                <input required defaultValue={editItem?.name} name="name" type="text" className="w-full px-3 py-2 border border-border rounded-sm text-xs  outline-none" />
+                <input 
+                  required 
+                  defaultValue={editItem?.name} 
+                  name="name" 
+                  type="text" 
+                  maxLength={255}
+                  onChange={(e) => setNameLength(e.target.value.length)}
+                  className="w-full px-3 py-2 border border-border rounded-sm text-xs outline-none focus:border-primary transition-colors" 
+                />
+                <div className="flex justify-end mt-1">
+                  <span className={`text-[10px] font-medium ${nameLength >= 255 ? 'text-red-500' : 'text-text-muted'}`}>{nameLength} / 255</span>
+                </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -364,7 +420,18 @@ export function ProductsPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-text mb-1">Harga (Rp)</label>
-                  <input required defaultValue={editItem?.price} name="price" type="number" min="0" className="w-full px-3 py-2 border border-border rounded-sm text-xs  outline-none" />
+                  <input 
+                    required 
+                    defaultValue={editItem?.price?.toLocaleString('id-ID') || ''} 
+                    name="price" 
+                    type="text" 
+                    inputMode="numeric"
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, '');
+                      e.target.value = val ? parseInt(val, 10).toLocaleString('id-ID') : '';
+                    }}
+                    className="w-full px-3 py-2 border border-border rounded-sm text-xs outline-none focus:border-primary transition-colors" 
+                  />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-text mb-1">Stok</label>
@@ -407,10 +474,17 @@ export function ProductsPage() {
                     type="text" 
                     inputMode="numeric" 
                     maxLength={13} 
-                    onChange={(e) => e.target.value = e.target.value.replace(/\D/g, '')}
+                    onChange={(e) => {
+                      e.target.value = e.target.value.replace(/\D/g, '');
+                      setNibLength(e.target.value.length);
+                    }}
                     placeholder="13 Digit Angka" 
-                    className="w-full px-3 py-2 border border-border rounded-sm text-xs outline-none" 
+                    className="w-full px-3 py-2 border border-border rounded-sm text-xs outline-none focus:border-primary transition-colors" 
                   />
+                  <div className="text-[10px] mt-1 min-h-[14px] font-medium">
+                    {nibLength > 0 && nibLength < 13 && <span className="text-red-500">Belum 13 digit</span>}
+                    {nibLength === 13 && <span className="text-green-500">✓ NIB sudah valid</span>}
+                  </div>
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-text mb-1">Sertifikat Halal (Opsional)</label>
@@ -420,24 +494,41 @@ export function ProductsPage() {
                     type="text" 
                     inputMode="numeric" 
                     maxLength={17} 
-                    onChange={(e) => e.target.value = e.target.value.replace(/\D/g, '')}
+                    onChange={(e) => {
+                      e.target.value = e.target.value.replace(/\D/g, '');
+                      setHalalLength(e.target.value.length);
+                    }}
                     placeholder="17 Digit Angka" 
-                    className="w-full px-3 py-2 border border-border rounded-sm text-xs outline-none" 
+                    className="w-full px-3 py-2 border border-border rounded-sm text-xs outline-none focus:border-primary transition-colors" 
                   />
+                  <div className="text-[10px] mt-1 min-h-[14px] font-medium">
+                    {halalLength > 0 && halalLength < 17 && <span className="text-red-500">Belum 17 digit</span>}
+                    {halalLength === 17 && <span className="text-green-500">✓ Sertifikat Halal sudah valid</span>}
+                  </div>
                 </div>
               </div>
               <div>
                 <label className="block text-xs font-semibold text-text mb-1">Deskripsi</label>
-                <textarea name="description" defaultValue={editItem?.description} rows="3" className="w-full px-3 py-2 border border-border rounded-sm text-xs outline-none"></textarea>
+                <textarea 
+                  name="description" 
+                  defaultValue={editItem?.description} 
+                  rows="3" 
+                  maxLength={3000}
+                  onChange={(e) => setDescLength(e.target.value.length)}
+                  className="w-full px-3 py-2 border border-border rounded-sm text-xs outline-none focus:border-primary transition-colors"
+                ></textarea>
+                <div className="flex justify-end mt-1">
+                  <span className={`text-[10px] font-medium ${descLength >= 3000 ? 'text-red-500' : 'text-text-muted'}`}>{descLength} / 3000</span>
+                </div>
               </div>
               <div>
-                <label className="block text-xs font-semibold text-text mb-1">Gambar Produk {editItem?.image_path && '(Kosongkan jika tidak diubah)'}</label>
-                <input name="image" type="file" accept="image/jpeg, image/png, image/webp" className="w-full px-3 py-2 border border-border rounded-sm text-xs text-text-muted  outline-none" />
-                {editItem?.image_path && (
-                  <div className="mt-2">
-                    <img src={editItem.image_path} alt="Preview" className="h-16 w-16 object-cover rounded-sm border border-border" />
-                  </div>
-                )}
+                <label className="block text-xs font-semibold text-text mb-2">Gambar Produk</label>
+                <ImageUpload 
+                  name="image" 
+                  defaultValue={editItem?.image_path} 
+                  label="Tarik atau Pilih Gambar Produk"
+                  helperText="Maksimal 2 MB (JPG, PNG, WEBP)"
+                />
               </div>
               <div className="pt-4 flex justify-end gap-3 border-t border-border">
                 <button type="button" onClick={closeModal} className="px-4 py-2 text-xs font-semibold text-text bg-surface border border-border rounded-sm hover:bg-gray-200 transition-colors">Batal</button>

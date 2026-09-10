@@ -19,8 +19,9 @@ export function useTableQuery(table, { defaultSort = 'newest', searchColumn = 'n
     number: ['id', { ascending: true }],
   };
 
-  const fetchData = useCallback(async () => {
-    const [column, opts] = sortMap[sort] || sortMap.newest;
+  const fetchData = useCallback(async (opts = {}) => {
+    const { exportMode = false } = opts;
+    const [column, sortOpts] = sortMap[sort] || sortMap.newest;
     let query = supabase.from(table).select(selectQuery, { count: 'exact' });
 
     if (search) {
@@ -30,9 +31,9 @@ export function useTableQuery(table, { defaultSort = 'newest', searchColumn = 'n
     if (statusFilter && statusFilter !== 'all') {
       query = query.eq('status', statusFilter);
     }
-    query = query.order(column, opts);
+    query = query.order(column, sortOpts);
 
-    if (pageSize !== 'all') {
+    if (pageSize !== 'all' && !exportMode) {
       const from = (page - 1) * pageSize;
       const to = from + pageSize - 1;
       query = query.range(from, to);
@@ -40,7 +41,7 @@ export function useTableQuery(table, { defaultSort = 'newest', searchColumn = 'n
 
     const { data, count, error } = await query;
     return { data, count, error };
-  }, [table, searchColumn, search, sort, page, pageSize]);
+  }, [table, searchColumn, search, sort, page, pageSize, statusFilter]);
 
   return {
     search,

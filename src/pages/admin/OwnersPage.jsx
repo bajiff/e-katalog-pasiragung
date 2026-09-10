@@ -8,9 +8,10 @@ import {
   SelectAllCheckbox,
   BulkActionBar
 } from '../../components/table';
-import { ConfirmModal } from '../../components/shared';
+import { ConfirmModal, ImageUpload, ExportMenu } from '../../components/shared';
 import { Edit, Trash2, Plus, X } from 'lucide-react';
 import { uploadImage, deleteImage } from '../../lib/storage';
+import { exportToExcel, exportToCSV, exportToPDF } from '../../utils/exportUtils';
 
 const sortOptions = [
   { value: 'newest', label: 'Terbaru' },
@@ -33,6 +34,7 @@ export function OwnersPage() {
   const [data, setData] = useState([]);
   const [totalItems, setTotalItems] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editItem, setEditItem] = useState(null);
@@ -138,6 +140,31 @@ export function OwnersPage() {
     });
   };
 
+  const exportColumns = [
+    { header: 'ID', accessor: (row) => row.id },
+    { header: 'Nama Pemilik', accessor: (row) => row.name },
+    { header: 'WhatsApp', accessor: (row) => row.contact_phone || '-' },
+    { header: 'Jumlah Produk', accessor: (row) => row.products?.[0]?.count || 0 },
+  ];
+
+  const handleExport = async (type) => {
+    try {
+      setExporting(true);
+      const { data, error } = await fetchData({ exportMode: true });
+      if (error) throw error;
+      
+      const filename = `Data_Pemilik_${new Date().toISOString().split('T')[0]}`;
+      if (type === 'excel') exportToExcel(data, exportColumns, filename);
+      else if (type === 'csv') exportToCSV(data, exportColumns, filename);
+      else if (type === 'pdf') exportToPDF(data, exportColumns, filename, 'Laporan Data Pemilik Usaha');
+    } catch (err) {
+      console.error(err);
+      alert('Gagal mengekspor data.');
+    } finally {
+      setExporting(false);
+    }
+  };
+
   const openModal = (item = null) => {
     setEditItem(item);
     setIsModalOpen(true);
@@ -241,7 +268,7 @@ export function OwnersPage() {
 
     return (
       <tr key={item.id} className="hover:bg-surface/50 transition-colors">
-        <td className="px-3 py-2">
+        <td className="px-2 py-1.5">
           <input
             type="checkbox"
             checked={selectedIds.includes(item.id)}
@@ -249,18 +276,24 @@ export function OwnersPage() {
             className="w-3.5 h-3.5 accent-primary cursor-pointer"
           />
         </td>
-        <td className="px-3 py-2 text-xs text-text-muted">{(page - 1) * (pageSize === 'all' ? totalItems : pageSize) + idx + 1}</td>
-        <td className="px-3 py-2">
+        <td className="px-2 py-1.5 text-xs text-text-muted">{(page - 1) * (pageSize === 'all' ? totalItems : pageSize) + idx + 1}</td>
+        <td className="px-2 py-1.5">
           {item.image ? (
             <img src={item.image} alt={item.name} className="w-10 h-10 object-cover rounded-sm border border-border" />
           ) : (
             <div className="w-10 h-10 bg-surface rounded-sm border border-border flex items-center justify-center text-xs text-text-muted">No Img</div>
           )}
         </td>
-        <td className="px-3 py-2 text-xs font-semibold text-text">{item.name}</td>
-        <td className="px-3 py-2 text-xs text-text-muted">{displayPhone}</td>
-        <td className="px-3 py-2 text-xs text-text-muted">{productsCount}</td>
-        <td className="px-3 py-2">
+        <td className="px-2 py-1.5 text-xs font-semibold text-text max-w-[200px] truncate">{item.name}</td>
+        <td className="px-2 py-1.5 text-xs text-text-muted max-w-[150px] truncate">
+          {displayPhone !== '-' ? (
+            <a href={`https://wa.me/62${displayPhone.slice(1)}`} target="_blank" rel="noreferrer" className="text-primary hover:underline">
+              {displayPhone}
+            </a>
+          ) : '-'}
+        </td>
+        <td className="px-2 py-1.5 text-xs text-text-muted">{productsCount}</td>
+        <td className="px-2 py-1.5">
           <div className="flex items-center gap-2">
             <button onClick={() => openModal(item)} className="p-1.5 text-primary hover:bg-primary/10 rounded-sm transition-colors">
               <Edit className="w-3.5 h-3.5" />
@@ -281,18 +314,21 @@ export function OwnersPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
         <div>
           <h1 className="text-2xl font-display font-bold text-text">Manajemen Pemilik Usaha</h1>
-          <p className="text-sm font-body text-text-muted">Daftar pemilik UMKM di Desa Pasiragung.</p>
+          <p className="text-sm font-body text-text-muted">Kelola data pemilik produk.</p>
         </div>
-        <button
-          onClick={() => openModal()}
-          className="flex items-center gap-2 bg-primary text-on-primary px-4 py-2 rounded-sm text-xs font-semibold hover:opacity-90 transition-opacity"
-        >
-          <Plus className="w-4 h-4" />
-          Tambah Owner
-        </button>
+        <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto mt-4 sm:mt-0">
+          <ExportMenu onExport={handleExport} loading={exporting} />
+          <button
+            onClick={() => openModal()}
+            className="flex items-center justify-center gap-2 bg-primary text-on-primary px-4 py-2 rounded-sm text-xs font-semibold hover:opacity-90 transition-opacity w-full sm:w-auto"
+          >
+            <Plus className="w-4 h-4" />
+            Tambah Owner
+          </button>
+        </div>
       </div>
 
       <div className="bg-background border border-border rounded-md p-4">
@@ -328,13 +364,13 @@ export function OwnersPage() {
                 <input defaultValue={editItem?.contact_phone} name="contact_phone" type="text" className="w-full px-3 py-2 border border-border rounded-sm text-xs  outline-none" placeholder="Contoh: 08123456789" />
               </div>
               <div>
-                <label className="block text-xs font-semibold text-text mb-1">Foto Owner {editItem?.image && '(Kosongkan jika tidak diubah)'}</label>
-                <input name="image" type="file" accept="image/jpeg, image/png, image/webp" className="w-full px-3 py-2 border border-border rounded-sm text-xs text-text-muted  outline-none" />
-                {editItem?.image && (
-                  <div className="mt-2">
-                    <img src={editItem.image} alt="Preview" className="h-16 w-16 object-cover rounded-sm border border-border" />
-                  </div>
-                )}
+                <label className="block text-xs font-semibold text-text mb-2">Foto Owner</label>
+                <ImageUpload 
+                  name="image" 
+                  defaultValue={editItem?.image} 
+                  label="Tarik atau Pilih Foto"
+                  helperText="Maksimal 2 MB (JPG, PNG, WEBP)"
+                />
               </div>
               <div className="pt-4 flex justify-end gap-3 border-t border-border">
                 <button type="button" onClick={closeModal} className="px-4 py-2 text-xs font-semibold text-text bg-surface border border-border rounded-sm hover:bg-gray-200 transition-colors">Batal</button>
