@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { uploadImage, deleteImage } from '../../lib/storage';
-import { ConfirmModal } from '../../components/shared';
+import { ConfirmModal, ImageUpload } from '../../components/shared';
 import { User } from 'lucide-react';
 
 export function ProfilePage() {
@@ -116,18 +116,15 @@ export function ProfilePage() {
         <div className="bg-background border border-border rounded-md p-6">
           <h2 className="text-lg font-display font-bold text-text mb-4">Informasi Dasar</h2>
           <form onSubmit={handleProfileSubmit} className="space-y-4">
-            <div className="flex items-center gap-4 mb-4">
-              <div className="w-16 h-16 rounded-full bg-surface border border-border flex items-center justify-center overflow-hidden">
-                {profile?.avatar ? (
-                  <img src={profile.avatar} alt="Avatar" className="w-full h-full object-cover" />
-                ) : (
-                  <User className="w-8 h-8 text-text-muted" />
-                )}
-              </div>
-              <div className="flex-1">
-                <label className="block text-xs font-semibold text-text mb-1">Ganti Avatar</label>
-                <input name="avatar" type="file" accept="image/jpeg, image/png, image/webp" className="w-full text-xs text-text-muted outline-none" />
-              </div>
+            <div className="mb-4">
+              <label className="block text-xs font-semibold text-text mb-2">Avatar Profil</label>
+              <ImageUpload 
+                name="avatar" 
+                defaultValue={profile?.avatar} 
+                label="Tarik atau Pilih Avatar"
+                helperText="Maksimal 2 MB (JPG, PNG, WEBP)"
+                variant="avatar"
+              />
             </div>
 
             <div>
