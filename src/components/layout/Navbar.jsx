@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import logo from '../../assets/logo.svg';
 
@@ -25,10 +25,14 @@ export const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, [isHome]);
 
+  const navigate = useNavigate();
+
   // Handle anchor links scroll if on home page
   const handleAnchorClick = (e, id) => {
+    e.preventDefault();
+    setIsMobileMenuOpen(false);
+
     if (isHome) {
-      e.preventDefault();
       const element = document.getElementById(id);
       if (element) {
         const offset = 80; // Navbar height roughly
@@ -41,11 +45,10 @@ export const Navbar = () => {
           top: offsetPosition,
           behavior: 'smooth'
         });
-        setIsMobileMenuOpen(false);
       }
     } else {
-      // If not on home page, let the user navigate to home with hash (need to handle it in Home component or just link to `/#id`)
-      setIsMobileMenuOpen(false);
+      // If not on home page, navigate to home and pass state to scroll
+      navigate('/', { state: { scrollTo: id } });
     }
   };
 
