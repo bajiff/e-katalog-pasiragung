@@ -58,22 +58,17 @@ export function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-surface flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+    <div className="min-h-screen bg-surface flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-sm">
         <div className="flex justify-center mb-6">
           <img src={logo} alt="Logo Pasiragung" className="h-16 w-auto" />
         </div>
         <h2 className="text-2xl font-display font-bold text-center text-text mb-2">Masuk ke Admin</h2>
-        <p className="mt-2 text-center text-sm font-body text-text-muted">
-          Atau{' '}
-          <Link to="/register" className="font-semibold text-primary hover:text-primary/80">
-            daftar sebagai admin baru
-          </Link>
-        </p>
+
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-background py-8 px-4 shadow sm:rounded-md sm:px-10 border border-border">
+      <div className="mt-8 sm:mx-auto w-full sm:max-w-sm">
+        <div className="bg-background py-8 px-6 shadow rounded-md sm:rounded-md sm:px-10 border border-border">
           {error && (
             <div className="mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-sm text-sm font-semibold">
               {error}
@@ -137,6 +132,12 @@ export function Login() {
             <Link to="/" className="w-full flex justify-center py-2 px-4 border border-border rounded-sm text-sm font-semibold text-text bg-surface hover:bg-gray-100 transition-colors">
               Kembali ke Beranda
             </Link>
+            <p className="mt-5 text-center text-sm font-body text-text-muted">
+              Atau{' '}
+              <Link to="/register" className="font-semibold text-primary hover:text-primary/80">
+                Daftar Untuk Menjadi Admin
+              </Link>
+            </p>
           </div>
         </div>
       </div>

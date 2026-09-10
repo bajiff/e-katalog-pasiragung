@@ -58,8 +58,7 @@ export const Navbar = () => {
   ];
 
   const bgColor = isScrolled ? 'bg-background shadow-sm border-b border-border' : 'bg-transparent';
-  const textColor = isScrolled ? 'text-text' : 'text-white';
-  const logoColor = isScrolled ? 'text-primary' : 'text-white';
+  const textColor = isScrolled ? 'text-text' : 'text-black';
   const loginBg = isScrolled ? 'bg-primary text-on-primary' : 'bg-white text-primary hover:bg-gray-100';
 
   return (
