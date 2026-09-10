@@ -51,14 +51,30 @@ export function TagsInput({ name, defaultValue = [], placeholder = 'Ketik lalu t
         {tags.length === 0 && <span className="text-xs text-text-muted italic self-center">Belum ada data</span>}
       </div>
 
-      <input
-        type="text"
-        value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
-        onKeyDown={handleKeyDown}
-        placeholder={placeholder}
-        className="w-full px-3 py-2 border rounded-sm text-xs outline-none focus:border-primary transition-colors"
-      />
+      <div className="flex items-center gap-2">
+        <input
+          type="text"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder={placeholder}
+          className="flex-1 px-3 py-2 border border-border rounded-sm text-xs outline-none focus:border-primary transition-colors"
+        />
+        <button
+          type="button"
+          onClick={() => {
+            const newTag = inputValue.trim();
+            if (newTag && !tags.includes(newTag)) {
+              setTags([...tags, newTag]);
+            }
+            setInputValue('');
+          }}
+          disabled={!inputValue.trim()}
+          className="px-3 py-2 bg-primary text-on-primary rounded-sm text-xs font-semibold hover:opacity-90 disabled:opacity-50 transition-opacity whitespace-nowrap"
+        >
+          Tambah
+        </button>
+      </div>
     </div>
   );
 }
