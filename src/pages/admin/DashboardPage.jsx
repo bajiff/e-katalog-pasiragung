@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
-import { Package, Grid, Users, UserCog } from 'lucide-react';
+import { Package, Grid, Users, UserCog, UserCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export function DashboardPage() {
@@ -10,7 +10,8 @@ export function DashboardPage() {
     products: 0,
     categories: 0,
     owners: 0,
-    pendingUsers: 0
+    pendingUsers: 0,
+    approvedAdmins: 0
   });
   const [loading, setLoading] = useState(true);
 
@@ -21,13 +22,17 @@ export function DashboardPage() {
         { count: pCount },
         { count: cCount },
         { count: oCount },
-        { count: uCount }
+        { count: uCount },
+        { count: aCount }
       ] = await Promise.all([
         supabase.from('products').select('*', { count: 'exact', head: true }),
         supabase.from('categories').select('*', { count: 'exact', head: true }),
         supabase.from('owners').select('*', { count: 'exact', head: true }),
         profile?.role === 'super_admin' 
           ? supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('status', 'pending')
+          : Promise.resolve({ count: 0 }),
+        profile?.role === 'super_admin' 
+          ? supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('status', 'approved')
           : Promise.resolve({ count: 0 })
       ]);
 
@@ -35,7 +40,8 @@ export function DashboardPage() {
         products: pCount || 0,
         categories: cCount || 0,
         owners: oCount || 0,
-        pendingUsers: uCount || 0
+        pendingUsers: uCount || 0,
+        approvedAdmins: aCount || 0
       });
       setLoading(false);
     };
@@ -54,14 +60,24 @@ export function DashboardPage() {
   ];
 
   if (profile?.role === 'super_admin') {
-    cards.push({ 
-      label: 'Admin Pending', 
-      value: stats.pendingUsers, 
-      icon: UserCog, 
-      link: '/admin/users', 
-      color: 'text-orange-600', 
-      bg: 'bg-orange-100' 
-    });
+    cards.push(
+      { 
+        label: 'Admin Terdaftar', 
+        value: stats.approvedAdmins, 
+        icon: UserCheck, 
+        link: '/admin/users', 
+        color: 'text-indigo-600', 
+        bg: 'bg-indigo-100' 
+      },
+      { 
+        label: 'Admin Pending', 
+        value: stats.pendingUsers, 
+        icon: UserCog, 
+        link: '/admin/users', 
+        color: 'text-orange-600', 
+        bg: 'bg-orange-100' 
+      }
+    );
   }
 
   return (
