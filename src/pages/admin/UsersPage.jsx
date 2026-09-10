@@ -9,7 +9,7 @@ import {
   BulkActionBar
 } from '../../components/table';
 import { ConfirmModal, ExportMenu } from '../../components/shared';
-import { CheckCircle, XCircle, Trash2, MoreVertical, Edit, Key } from 'lucide-react';
+import { CheckCircle, XCircle, Trash2, MoreVertical, Edit, Key, X } from 'lucide-react';
 import { exportToExcel, exportToCSV, exportToPDF } from '../../utils/exportUtils';
 
 const sortOptions = [
@@ -35,6 +35,9 @@ export function UsersPage() {
   const [exporting, setExporting] = useState(false);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false });
   const [openDropdownId, setOpenDropdownId] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editItem, setEditItem] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = () => setOpenDropdownId(null);
@@ -49,6 +52,43 @@ export function UsersPage() {
       onConfirm: async () => {
         setConfirmModal(prev => ({ ...prev, isOpen: false }));
         if (options.onConfirm) await options.onConfirm();
+      }
+    });
+  };
+
+  const openModal = (item) => {
+    setEditItem(item);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setEditItem(null);
+    setIsModalOpen(false);
+  };
+
+  const handleEditSubmit = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const name = formData.get('name');
+
+    requestConfirm({
+      title: 'Konfirmasi Edit User',
+      message: 'Apakah Anda yakin ingin menyimpan perubahan nama user ini?',
+      confirmText: 'Ya, Simpan',
+      onConfirm: async () => {
+        try {
+          setIsSaving(true);
+          const { error } = await supabase.from('profiles').update({ name }).eq('id', editItem.id);
+          if (error) throw error;
+
+          closeModal();
+          loadData();
+        } catch (err) {
+          console.error("Gagal update user:", err);
+          alert(`Gagal menyimpan data: ${err.message || 'Terjadi kesalahan sistem'}`);
+        } finally {
+          setIsSaving(false);
+        }
       }
     });
   };
@@ -169,7 +209,7 @@ export function UsersPage() {
           const { data, error } = await supabase.functions.invoke('manage-user', {
             body: { targetUserId: id, action: status === 'approved' ? 'approve' : 'reject' }
           });
-          
+
           if (error) throw error;
           if (data?.error) throw new Error(data.error);
 
@@ -228,35 +268,35 @@ export function UsersPage() {
         <td className="px-2 py-1.5">
           {!isSuperAdmin && (
             <div className="relative">
-              <button 
+              <button
                 onClick={(e) => { e.stopPropagation(); setOpenDropdownId(openDropdownId === item.id ? null : item.id); }}
                 className="p-1.5 text-text-muted hover:bg-surface rounded-sm transition-colors flex items-center gap-1 text-xs font-semibold"
               >
                 Aksi <MoreVertical className="w-3.5 h-3.5" />
               </button>
-              
+
               {openDropdownId === item.id && (
                 <div className="absolute right-0 top-full mt-1 w-40 bg-background border border-border rounded-sm shadow-md z-50 py-1" onClick={e => e.stopPropagation()}>
-                   <button onClick={() => { setOpenDropdownId(null); alert('Fitur Edit belum diimplementasikan'); }} className="w-full text-left px-3 py-1.5 text-xs text-text hover:bg-surface flex items-center gap-2">
-                     <Edit className="w-3.5 h-3.5 text-blue-600" /> Edit
-                   </button>
-                   {item.status !== 'approved' && (
-                     <button onClick={() => { setOpenDropdownId(null); updateStatus(item.id, 'approved'); }} className="w-full text-left px-3 py-1.5 text-xs text-text hover:bg-surface flex items-center gap-2">
-                       <CheckCircle className="w-3.5 h-3.5 text-green-600" /> Approve
-                     </button>
-                   )}
-                   {item.status !== 'rejected' && (
-                     <button onClick={() => { setOpenDropdownId(null); updateStatus(item.id, 'rejected'); }} className="w-full text-left px-3 py-1.5 text-xs text-text hover:bg-surface flex items-center gap-2">
-                       <XCircle className="w-3.5 h-3.5 text-orange-600" /> Reject
-                     </button>
-                   )}
-                   <button onClick={() => { setOpenDropdownId(null); alert('Fitur Reset Password belum diimplementasikan'); }} className="w-full text-left px-3 py-1.5 text-xs text-text hover:bg-surface flex items-center gap-2">
-                     <Key className="w-3.5 h-3.5 text-purple-600" /> Reset Password
-                   </button>
-                   <div className="h-px bg-border my-1"></div>
-                   <button onClick={() => { setOpenDropdownId(null); handleDelete(item); }} className="w-full text-left px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2">
-                     <Trash2 className="w-3.5 h-3.5" /> Hapus User
-                   </button>
+                  <button onClick={() => { setOpenDropdownId(null); openModal(item); }} className="w-full text-left px-3 py-1.5 text-xs text-text hover:bg-surface flex items-center gap-2">
+                    <Edit className="w-3.5 h-3.5 text-blue-600" /> Edit
+                  </button>
+                  {item.status !== 'approved' && (
+                    <button onClick={() => { setOpenDropdownId(null); updateStatus(item.id, 'approved'); }} className="w-full text-left px-3 py-1.5 text-xs text-text hover:bg-surface flex items-center gap-2">
+                      <CheckCircle className="w-3.5 h-3.5 text-green-600" /> Approve
+                    </button>
+                  )}
+                  {item.status !== 'rejected' && (
+                    <button onClick={() => { setOpenDropdownId(null); updateStatus(item.id, 'rejected'); }} className="w-full text-left px-3 py-1.5 text-xs text-text hover:bg-surface flex items-center gap-2">
+                      <XCircle className="w-3.5 h-3.5 text-orange-600" /> Reject
+                    </button>
+                  )}
+                  <button onClick={() => { setOpenDropdownId(null); alert('Fitur Reset Password belum diimplementasikan'); }} className="w-full text-left px-3 py-1.5 text-xs text-text hover:bg-surface flex items-center gap-2">
+                    <Key className="w-3.5 h-3.5 text-purple-600" /> Reset Password
+                  </button>
+                  <div className="h-px bg-border my-1"></div>
+                  <button onClick={() => { setOpenDropdownId(null); handleDelete(item); }} className="w-full text-left px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2">
+                    <Trash2 className="w-3.5 h-3.5" /> Hapus User
+                  </button>
                 </div>
               )}
             </div>
@@ -302,6 +342,39 @@ export function UsersPage() {
 
         <Pagination page={page} setPage={setPage} totalItems={totalItems} pageSize={pageSize} />
       </div>
+
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-text/50 p-4">
+          <div className="bg-background rounded-md w-full max-w-md shadow-xl flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b border-border">
+              <h2 className="text-lg font-display font-bold text-text">Edit Pengguna</h2>
+              <button onClick={closeModal} className="text-text-muted hover:text-text">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <form onSubmit={handleEditSubmit} className="p-4 space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-text mb-1">Nama Lengkap</label>
+                <input required defaultValue={editItem?.name} name="name" type="text" className="w-full px-3 py-2 border rounded-sm text-xs outline-none focus:border-primary transition-colors" />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-text mb-1">Email (Hanya Baca)</label>
+                <input disabled defaultValue={editItem?.email} type="email" className="w-full px-3 py-2 border border-border rounded-sm text-xs bg-surface text-text-muted outline-none cursor-not-allowed" />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-text mb-1">Role (Hanya Baca)</label>
+                <input disabled defaultValue={editItem?.role?.replace('_', ' ')} type="text" className="w-full px-3 py-2 border border-border rounded-sm text-xs bg-surface text-text-muted outline-none capitalize cursor-not-allowed" />
+              </div>
+              <div className="pt-4 flex justify-end gap-3 border-t border-border mt-6">
+                <button type="button" onClick={closeModal} className="px-4 py-2 text-xs font-semibold text-text bg-surface border border-border rounded-sm hover:bg-gray-200 transition-colors">Batal</button>
+                <button type="submit" disabled={isSaving} className="px-4 py-2 text-xs font-semibold text-on-primary bg-primary rounded-sm hover:opacity-90 transition-opacity disabled:opacity-50">
+                  {isSaving ? 'Menyimpan...' : 'Simpan'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       <ConfirmModal
         isOpen={confirmModal.isOpen}
