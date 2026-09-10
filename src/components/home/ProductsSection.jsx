@@ -9,7 +9,7 @@ export const ProductsSection = () => {
   const [categories, setCategories] = useState([]);
   const [activeCategory, setActiveCategory] = useState('all');
   const [loading, setLoading] = useState(true);
-  
+
   // Pagination
   const [page, setPage] = useState(1);
   const pageSize = 12; // Menampilkan 12 produk per halaman
@@ -27,12 +27,12 @@ export const ProductsSection = () => {
     const fetchProducts = async () => {
       setLoading(true);
       let query = supabase.from('products').select('*, categories(name), owners(name)', { count: 'exact' });
-      
+
       if (search) query = query.ilike('name', `%${search}%`);
       if (activeCategory !== 'all') query = query.eq('category_id', activeCategory);
-      
+
       query = query.order('created_at', { ascending: false });
-      
+
       const from = (page - 1) * pageSize;
       const to = from + pageSize - 1;
       query = query.range(from, to);
@@ -57,8 +57,8 @@ export const ProductsSection = () => {
   return (
     <section id="products" className="py-20 px-4 bg-background">
       <div className="container mx-auto">
-        <SectionHeading 
-          title="Katalog Produk" 
+        <SectionHeading
+          title="Katalog Produk"
           subtitle="Jelajahi berbagai produk terbaik langsung dari tangan pengrajin."
         />
 
@@ -67,7 +67,7 @@ export const ProductsSection = () => {
             <select
               value={activeCategory}
               onChange={(e) => setActiveCategory(e.target.value)}
-              className="w-full md:max-w-xs px-3 py-2 border border-border rounded-sm text-sm font-semibold bg-surface outline-none focus:border-primary transition-colors text-text"
+              className="w-full md:max-w-xs px-3 py-2 border rounded-sm text-sm font-semibold bg-surface outline-none focus:border-primary transition-colors text-text"
             >
               <option value="all">Semua Kategori</option>
               {categories.map(c => (
@@ -77,10 +77,10 @@ export const ProductsSection = () => {
           </div>
 
           <div className="w-full md:w-72 shrink-0">
-            <SearchInput 
-              value={search} 
-              onChange={(e) => setSearch(e.target.value)} 
-              placeholder="Cari nama produk..." 
+            <SearchInput
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Cari nama produk..."
             />
           </div>
         </div>
