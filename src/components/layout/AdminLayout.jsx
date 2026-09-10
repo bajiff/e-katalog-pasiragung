@@ -3,6 +3,7 @@ import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { LayoutDashboard, Package, Grid, Users, UserCog, User, LogOut, Menu, X } from 'lucide-react';
 import { ConfirmModal } from '../shared';
+import logo from '../../assets/logo.svg';
 
 export function AdminLayout() {
   const { profile, signOut } = useAuth();
@@ -34,8 +35,8 @@ export function AdminLayout() {
     <div className="flex h-screen bg-surface">
       {/* Sidebar - Desktop */}
       <aside className="hidden md:flex flex-col w-64 bg-background border-r border-border">
-        <div className="p-4 border-b border-border">
-          <h1 className="text-xl font-display font-bold text-text">E-Katalog Admin</h1>
+        <div className="p-4 border-b border-border flex items-center justify-center">
+          <img src={logo} alt="Logo Pasiragung" className="h-12 w-auto max-w-full" />
         </div>
         <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
           {menuItems.map((item) => {
@@ -81,7 +82,7 @@ export function AdminLayout() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between p-4 border-b border-border">
-              <h1 className="text-xl font-display font-bold text-text">E-Katalog Admin</h1>
+              <img src={logo} alt="Logo Pasiragung" className="h-10 w-auto" />
               <button onClick={toggleSidebar} className="text-text-muted hover:text-text">
                 <X className="w-5 h-5" />
               </button>
