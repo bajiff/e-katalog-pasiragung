@@ -44,7 +44,13 @@ export function Register() {
       setSuccess('Registrasi berhasil! Menunggu persetujuan Super Admin sebelum dapat login.');
       setFormData({ name: '', email: '', password: '', confirmPassword: '' });
     } catch (err) {
-      setError(err.message);
+      if (err.message.includes('rate limit')) {
+        setError('Terlalu banyak percobaan pendaftaran. Sistem membatasi pendaftaran berulang untuk mencegah spam. Silakan tunggu beberapa saat (sekitar 1 jam) sebelum mencoba lagi.');
+      } else if (err.message.includes('already registered')) {
+        setError('Email ini sudah terdaftar. Silakan gunakan email lain atau masuk ke akun Anda.');
+      } else {
+        setError(err.message);
+      }
     } finally {
       setLoading(false);
     }

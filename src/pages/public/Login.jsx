@@ -49,6 +49,8 @@ export function Login() {
     } catch (err) {
       if (err.message.includes('Invalid login credentials')) {
         setError('Email atau kata sandi salah.');
+      } else if (err.message.includes('rate limit')) {
+        setError('Terlalu banyak percobaan masuk. Demi keamanan, silakan tunggu beberapa saat sebelum mencoba lagi.');
       } else {
         setError(err.message);
       }
