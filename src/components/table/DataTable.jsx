@@ -1,13 +1,14 @@
 import React from 'react';
+import { LoadingOverlay } from '../shared/LoadingOverlay';
 
 export function DataTable({ columns, data, renderRow, loading }) {
   return (
     <div className="w-full overflow-x-auto border border-border rounded-md bg-background">
-      <table className="w-full text-left border-collapse min-w-[600px]">
+      <table className="w-full text-left border-collapse min-w-full">
         <thead>
           <tr className="bg-surface border-b border-border">
             {columns.map((col, idx) => (
-              <th key={idx} className="px-3 py-2 text-xs font-body font-semibold text-text whitespace-nowrap">
+              <th key={idx} className="px-2 py-2 text-xs font-body font-semibold text-text truncate max-w-[200px]">
                 {col}
               </th>
             ))}
@@ -16,7 +17,9 @@ export function DataTable({ columns, data, renderRow, loading }) {
         <tbody className="divide-y divide-border">
           {loading ? (
             <tr>
-              <td colSpan={columns.length} className="text-center py-8 text-xs text-text-muted">Loading...</td>
+              <td colSpan={columns.length} className="text-center py-8">
+                <LoadingOverlay isFullscreen={false} message="Memuat data..." />
+              </td>
             </tr>
           ) : data.length === 0 ? (
             <tr>
