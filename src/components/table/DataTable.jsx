@@ -3,7 +3,7 @@ import { LoadingOverlay } from '../shared/LoadingOverlay';
 
 export function DataTable({ columns, data, renderRow, loading }) {
   return (
-    <div className="w-full overflow-x-auto border border-border rounded-md bg-background">
+    <div className="w-full overflow-x-auto border border-border rounded-md bg-background min-h-[60vh]">
       <table className="w-full text-left border-collapse min-w-full">
         <thead>
           <tr className="bg-surface border-b border-border">

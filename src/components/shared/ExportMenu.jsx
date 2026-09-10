@@ -32,7 +32,7 @@ export function ExportMenu({ onExport, loading }) {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 sm:left-0 sm:right-auto mt-1 w-full sm:w-36 bg-background border border-border rounded-sm shadow-lg z-50 overflow-hidden">
+        <div className="absolute right-0 mt-1 w-full sm:w-36 bg-background border border-border rounded-sm shadow-lg z-50 overflow-hidden">
           <button
             onClick={() => handleExportClick('pdf')}
             className="flex items-center gap-2 w-full px-3 py-2 text-xs text-left text-text hover:bg-surface transition-colors"
