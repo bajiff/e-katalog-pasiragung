@@ -14,8 +14,9 @@ export const ProductCard = ({ product }) => {
       <div className="p-4 flex flex-col grow">
         <p className="text-xs text-text-muted mb-1">{product.categories?.name || 'Uncategorized'}</p>
         <h3 className="font-display font-semibold text-lg text-text mb-2 line-clamp-2">{product.name}</h3>
-        <div className="mt-auto">
+        <div className="mt-auto flex flex-col gap-2">
           <p className="font-body font-bold text-primary text-base">Rp {product.price?.toLocaleString('id-ID')}</p>
+          <span className="text-xs font-semibold text-primary underline mt-1">Baca Selengkapnya</span>
         </div>
       </div>
     </Link>

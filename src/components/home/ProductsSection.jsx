@@ -63,26 +63,17 @@ export const ProductsSection = () => {
         />
 
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-          <div className="flex overflow-x-auto w-full flex-1 min-w-0 gap-2 pb-2 hide-scrollbar">
-            <button 
-              onClick={() => setActiveCategory('all')}
-              className={`px-4 py-2 rounded-md whitespace-nowrap text-sm font-semibold transition-colors ${
-                activeCategory === 'all' ? 'bg-text text-background' : 'bg-surface text-text hover:bg-border border border-border'
-              }`}
+          <div className="w-full md:w-auto flex-1 min-w-0">
+            <select
+              value={activeCategory}
+              onChange={(e) => setActiveCategory(e.target.value)}
+              className="w-full md:max-w-xs px-3 py-2 border border-border rounded-sm text-sm font-semibold bg-surface outline-none focus:border-primary transition-colors text-text"
             >
-              Semua
-            </button>
-            {categories.map(c => (
-              <button 
-                key={c.id}
-                onClick={() => setActiveCategory(c.id)}
-                className={`px-4 py-2 rounded-md whitespace-nowrap text-sm font-semibold transition-colors ${
-                  activeCategory === c.id ? 'bg-text text-background' : 'bg-surface text-text hover:bg-border border border-border'
-                }`}
-              >
-                {c.name}
-              </button>
-            ))}
+              <option value="all">Semua Kategori</option>
+              {categories.map(c => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
           </div>
 
           <div className="w-full md:w-72 shrink-0">
