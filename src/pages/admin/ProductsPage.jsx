@@ -203,13 +203,25 @@ export function ProductsPage() {
     // New fields processing
     let nib = formData.get('nib') || null;
     if (nib && nib.length !== 13) {
-      alert('NIB harus terdiri dari tepat 13 digit angka.');
+      requestConfirm({
+        title: 'Validasi Gagal',
+        message: 'NIB harus terdiri dari tepat 13 digit angka.',
+        confirmText: 'Mengerti',
+        hideCancel: true,
+        onConfirm: () => {}
+      });
       return;
     }
 
     let halal_certificate = formData.get('halal_certificate') || null;
     if (halal_certificate && halal_certificate.length !== 17) {
-      alert('Sertifikat Halal harus terdiri dari tepat 17 digit angka.');
+      requestConfirm({
+        title: 'Validasi Gagal',
+        message: 'Sertifikat Halal harus terdiri dari tepat 17 digit angka.',
+        confirmText: 'Mengerti',
+        hideCancel: true,
+        onConfirm: () => {}
+      });
       return;
     }
 

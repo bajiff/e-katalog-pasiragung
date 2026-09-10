@@ -8,7 +8,8 @@ export const ConfirmModal = ({
   cancelText = "Batal",
   onConfirm,
   onCancel,
-  isDestructive = false
+  isDestructive = false,
+  hideCancel = false
 }) => {
   if (!isOpen) return null;
 
@@ -30,13 +31,15 @@ export const ConfirmModal = ({
         </p>
 
         <div className="flex items-center justify-end gap-3">
-          <button
-            type="button"
-            onClick={onCancel}
-            className="px-4 py-2 text-sm font-semibold text-text bg-background border border-border rounded-sm hover:bg-gray-100 transition-colors"
-          >
-            {cancelText}
-          </button>
+          {!hideCancel && (
+            <button
+              type="button"
+              onClick={onCancel}
+              className="px-4 py-2 text-sm font-semibold text-text bg-background border border-border rounded-sm hover:bg-gray-100 transition-colors"
+            >
+              {cancelText}
+            </button>
+          )}
           <button
             type="button"
             onClick={onConfirm}
