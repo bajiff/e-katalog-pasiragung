@@ -6,7 +6,7 @@ import { ConfirmModal } from '../../components/shared';
 import { User } from 'lucide-react';
 
 export function ProfilePage() {
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
   const [isSaving, setIsSaving] = useState(false);
   const [isPassSaving, setIsPassSaving] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
@@ -137,7 +137,7 @@ export function ProfilePage() {
 
             <div>
               <label className="block text-xs font-semibold text-text mb-1">Email (Hanya Baca)</label>
-              <input disabled defaultValue={profile?.email} type="email" className="w-full px-3 py-2 border border-border rounded-sm text-xs bg-surface text-text-muted outline-none cursor-not-allowed" />
+              <input disabled defaultValue={user?.email} type="email" className="w-full px-3 py-2 border border-border rounded-sm text-xs bg-surface text-text-muted outline-none cursor-not-allowed" />
             </div>
 
             <div>
