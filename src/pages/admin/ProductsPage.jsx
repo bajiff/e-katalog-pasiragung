@@ -114,7 +114,7 @@ export function ProductsPage() {
           }
           const { error } = await supabase.from('products').delete().eq('id', id);
           if (error) throw error;
-          
+
           setSelectedIds(selectedIds.filter(i => i !== id));
           loadData();
         } catch (err) {
@@ -164,7 +164,7 @@ export function ProductsPage() {
       setExporting(true);
       const { data, error } = await fetchData({ exportMode: true });
       if (error) throw error;
-      
+
       const filename = `Data_Produk_${new Date().toISOString().split('T')[0]}`;
       if (type === 'excel') exportToExcel(data, exportColumns, filename);
       else if (type === 'csv') exportToCSV(data, exportColumns, filename);
@@ -217,13 +217,13 @@ export function ProductsPage() {
     try {
       const parsed = JSON.parse(formData.get('flavor_variants') || '[]');
       if (Array.isArray(parsed) && parsed.length > 0) flavor_variants = parsed;
-    } catch(e) {}
+    } catch (e) { }
 
     let compositions = null;
     try {
       const parsed = JSON.parse(formData.get('compositions') || '[]');
       if (Array.isArray(parsed) && parsed.length > 0) compositions = parsed;
-    } catch(e) {}
+    } catch (e) { }
 
     const capacity = formData.get('capacity');
     const unit = formData.get('unit');
@@ -325,9 +325,9 @@ export function ProductsPage() {
           <div className="w-10 h-10 bg-surface rounded-sm border border-border flex items-center justify-center text-xs text-text-muted">No Img</div>
         )}
       </td>
-      <td className="px-2 py-1.5 text-xs font-semibold text-text max-w-[200px] truncate">{item.name}</td>
-      <td className="px-2 py-1.5 text-xs text-text-muted max-w-[150px] truncate">{item.categories?.name || '-'}</td>
-      <td className="px-2 py-1.5 text-xs text-text-muted max-w-[150px] truncate">{item.owners?.name || '-'}</td>
+      <td className="px-2 py-1.5 text-xs font-semibold text-text max-w-50 truncate">{item.name}</td>
+      <td className="px-2 py-1.5 text-xs text-text-muted max-w-37.5 truncate">{item.categories?.name || '-'}</td>
+      <td className="px-2 py-1.5 text-xs text-text-muted max-w-37.5 truncate">{item.owners?.name || '-'}</td>
       <td className="px-2 py-1.5 text-xs font-semibold text-text">Rp {item.price?.toLocaleString('id-ID')}</td>
       <td className="px-2 py-1.5 text-xs text-text-muted">{item.stock}</td>
       <td className="px-3 py-2">
@@ -388,14 +388,14 @@ export function ProductsPage() {
             <form onSubmit={handleSubmit} className="p-4 overflow-y-auto space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-text mb-1">Nama Produk</label>
-                <input 
-                  required 
-                  defaultValue={editItem?.name} 
-                  name="name" 
-                  type="text" 
+                <input
+                  required
+                  defaultValue={editItem?.name}
+                  name="name"
+                  type="text"
                   maxLength={255}
                   onChange={(e) => setNameLength(e.target.value.length)}
-                  className="w-full px-3 py-2 border border-border rounded-sm text-xs outline-none focus:border-primary transition-colors" 
+                  className="w-full px-3 py-2 border  rounded-sm text-xs outline-none focus:border-primary transition-colors"
                 />
                 <div className="flex justify-end mt-1">
                   <span className={`text-[10px] font-medium ${nameLength >= 255 ? 'text-red-500' : 'text-text-muted'}`}>{nameLength} / 255</span>
@@ -420,17 +420,17 @@ export function ProductsPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-text mb-1">Harga (Rp)</label>
-                  <input 
-                    required 
-                    defaultValue={editItem?.price?.toLocaleString('id-ID') || ''} 
-                    name="price" 
-                    type="text" 
+                  <input
+                    required
+                    defaultValue={editItem?.price?.toLocaleString('id-ID') || ''}
+                    name="price"
+                    type="text"
                     inputMode="numeric"
                     onChange={(e) => {
                       const val = e.target.value.replace(/\D/g, '');
                       e.target.value = val ? parseInt(val, 10).toLocaleString('id-ID') : '';
                     }}
-                    className="w-full px-3 py-2 border border-border rounded-sm text-xs outline-none focus:border-primary transition-colors" 
+                    className="w-full px-3 py-2 border rounded-sm text-xs outline-none focus:border-primary transition-colors"
                   />
                 </div>
                 <div>
@@ -468,40 +468,40 @@ export function ProductsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-text mb-1">NIB (Opsional)</label>
-                  <input 
-                    defaultValue={editItem?.nib} 
-                    name="nib" 
-                    type="text" 
-                    inputMode="numeric" 
-                    maxLength={13} 
+                  <input
+                    defaultValue={editItem?.nib}
+                    name="nib"
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={13}
                     onChange={(e) => {
                       e.target.value = e.target.value.replace(/\D/g, '');
                       setNibLength(e.target.value.length);
                     }}
-                    placeholder="13 Digit Angka" 
-                    className="w-full px-3 py-2 border border-border rounded-sm text-xs outline-none focus:border-primary transition-colors" 
+                    placeholder="13 Digit Angka"
+                    className="w-full px-3 py-2 border  rounded-sm text-xs outline-none focus:border-primary transition-colors"
                   />
-                  <div className="text-[10px] mt-1 min-h-[14px] font-medium">
+                  <div className="text-[10px] mt-1 min-h-3.5 font-medium">
                     {nibLength > 0 && nibLength < 13 && <span className="text-red-500">Belum 13 digit</span>}
                     {nibLength === 13 && <span className="text-green-500">✓ NIB sudah valid</span>}
                   </div>
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-text mb-1">Sertifikat Halal (Opsional)</label>
-                  <input 
-                    defaultValue={editItem?.halal_certificate} 
-                    name="halal_certificate" 
-                    type="text" 
-                    inputMode="numeric" 
-                    maxLength={17} 
+                  <input
+                    defaultValue={editItem?.halal_certificate}
+                    name="halal_certificate"
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={17}
                     onChange={(e) => {
                       e.target.value = e.target.value.replace(/\D/g, '');
                       setHalalLength(e.target.value.length);
                     }}
-                    placeholder="17 Digit Angka" 
-                    className="w-full px-3 py-2 border border-border rounded-sm text-xs outline-none focus:border-primary transition-colors" 
+                    placeholder="17 Digit Angka"
+                    className="w-full px-3 py-2 border  rounded-sm text-xs outline-none focus:border-primary transition-colors"
                   />
-                  <div className="text-[10px] mt-1 min-h-[14px] font-medium">
+                  <div className="text-[10px] mt-1 min-h-3.5 font-medium">
                     {halalLength > 0 && halalLength < 17 && <span className="text-red-500">Belum 17 digit</span>}
                     {halalLength === 17 && <span className="text-green-500">✓ Sertifikat Halal sudah valid</span>}
                   </div>
@@ -509,13 +509,13 @@ export function ProductsPage() {
               </div>
               <div>
                 <label className="block text-xs font-semibold text-text mb-1">Deskripsi</label>
-                <textarea 
-                  name="description" 
-                  defaultValue={editItem?.description} 
-                  rows="3" 
+                <textarea
+                  name="description"
+                  defaultValue={editItem?.description}
+                  rows="3"
                   maxLength={3000}
                   onChange={(e) => setDescLength(e.target.value.length)}
-                  className="w-full px-3 py-2 border border-border rounded-sm text-xs outline-none focus:border-primary transition-colors"
+                  className="w-full px-3 py-2 border  rounded-sm text-xs outline-none focus:border-primary transition-colors"
                 ></textarea>
                 <div className="flex justify-end mt-1">
                   <span className={`text-[10px] font-medium ${descLength >= 3000 ? 'text-red-500' : 'text-text-muted'}`}>{descLength} / 3000</span>
@@ -523,9 +523,9 @@ export function ProductsPage() {
               </div>
               <div>
                 <label className="block text-xs font-semibold text-text mb-2">Gambar Produk</label>
-                <ImageUpload 
-                  name="image" 
-                  defaultValue={editItem?.image_path} 
+                <ImageUpload
+                  name="image"
+                  defaultValue={editItem?.image_path}
                   label="Tarik atau Pilih Gambar Produk"
                   helperText="Maksimal 2 MB (JPG, PNG, WEBP)"
                 />

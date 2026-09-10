@@ -141,7 +141,7 @@ export function CategoriesPage() {
       setExporting(true);
       const { data, error } = await fetchData({ exportMode: true });
       if (error) throw error;
-      
+
       const filename = `Data_Kategori_${new Date().toISOString().split('T')[0]}`;
       if (type === 'excel') exportToExcel(data, exportColumns, filename);
       else if (type === 'csv') exportToCSV(data, exportColumns, filename);
@@ -231,7 +231,7 @@ export function CategoriesPage() {
           />
         </td>
         <td className="px-2 py-1.5 text-xs text-text-muted">{(page - 1) * (pageSize === 'all' ? totalItems : pageSize) + idx + 1}</td>
-        <td className="px-2 py-1.5 text-xs font-semibold text-text max-w-[200px] truncate">{item.name}</td>
+        <td className="px-2 py-1.5 text-xs font-semibold text-text max-w-50 truncate">{item.name}</td>
         <td className="px-2 py-1.5 text-xs text-text-muted">{productsCount}</td>
         <td className="px-2 py-1.5">
           <div className="flex items-center gap-2">

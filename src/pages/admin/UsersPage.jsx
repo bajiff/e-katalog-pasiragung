@@ -137,7 +137,7 @@ export function UsersPage() {
       setExporting(true);
       const { data, error } = await fetchData({ exportMode: true });
       if (error) throw error;
-      
+
       const filename = `Data_Pengguna_${new Date().toISOString().split('T')[0]}`;
       if (type === 'excel') exportToExcel(data, exportColumns, filename);
       else if (type === 'csv') exportToCSV(data, exportColumns, filename);
@@ -201,13 +201,13 @@ export function UsersPage() {
           />
         </td>
         <td className="px-2 py-1.5 text-xs text-text-muted">{(page - 1) * (pageSize === 'all' ? totalItems : pageSize) + idx + 1}</td>
-        <td className="px-2 py-1.5 text-xs font-semibold text-text max-w-[200px] truncate">{item.name}</td>
-        <td className="px-2 py-1.5 text-xs text-text-muted max-w-[200px] truncate">{item.email || '-'}</td>
+        <td className="px-2 py-1.5 text-xs font-semibold text-text max-w-50 truncate">{item.name}</td>
+        <td className="px-2 py-1.5 text-xs text-text-muted max-w-50 truncate">{item.email || '-'}</td>
         <td className="px-2 py-1.5 text-xs capitalize text-text-muted">{item.role?.replace('_', ' ')}</td>
         <td className="px-2 py-1.5 text-xs">
           <span className={`px-2 py-1 rounded-sm font-semibold ${item.status === 'approved' ? 'bg-green-100 text-green-700' :
-              item.status === 'rejected' ? 'bg-red-100 text-red-700' :
-                'bg-yellow-100 text-yellow-700'
+            item.status === 'rejected' ? 'bg-red-100 text-red-700' :
+              'bg-yellow-100 text-yellow-700'
             }`}>
             {item.status}
           </span>
@@ -260,7 +260,7 @@ export function UsersPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="border border-border rounded-sm px-3 py-2 text-xs bg-background outline-none min-w-[150px] w-full sm:w-auto"
+            className="border border-border rounded-sm px-3 py-2 text-xs bg-background outline-none min-w-37.5 w-full sm:w-auto"
           >
             <option value="all">Semua Status</option>
             <option value="pending">Pending</option>

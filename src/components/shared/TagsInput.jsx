@@ -58,7 +58,7 @@ export function TagsInput({ name, defaultValue = [], placeholder = 'Ketik lalu t
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
-          className="flex-1 px-3 py-2 border border-border rounded-sm text-xs outline-none focus:border-primary transition-colors"
+          className="flex-1 px-3 py-2 border  rounded-sm text-xs outline-none focus:border-primary transition-colors"
         />
         <button
           type="button"

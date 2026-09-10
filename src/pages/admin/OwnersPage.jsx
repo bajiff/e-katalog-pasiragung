@@ -97,7 +97,7 @@ export function OwnersPage() {
           }
           const { error } = await supabase.from('owners').delete().eq('id', item.id);
           if (error) throw error;
-          
+
           setSelectedIds(selectedIds.filter(i => i !== item.id));
           loadData();
         } catch (err) {
@@ -129,7 +129,7 @@ export function OwnersPage() {
           }
           const { error } = await supabase.from('owners').delete().in('id', selectedIds);
           if (error) throw error;
-          
+
           setSelectedIds([]);
           loadData();
         } catch (err) {
@@ -152,7 +152,7 @@ export function OwnersPage() {
       setExporting(true);
       const { data, error } = await fetchData({ exportMode: true });
       if (error) throw error;
-      
+
       const filename = `Data_Pemilik_${new Date().toISOString().split('T')[0]}`;
       if (type === 'excel') exportToExcel(data, exportColumns, filename);
       else if (type === 'csv') exportToCSV(data, exportColumns, filename);
@@ -179,7 +179,7 @@ export function OwnersPage() {
     e.preventDefault();
     const formData = new FormData(e.target);
     const name = formData.get('name');
-    
+
     let contact_phone = formData.get('contact_phone');
     if (contact_phone) {
       contact_phone = contact_phone.replace(/\D/g, ''); // Hanya ambil angka
@@ -284,8 +284,8 @@ export function OwnersPage() {
             <div className="w-10 h-10 bg-surface rounded-sm border border-border flex items-center justify-center text-xs text-text-muted">No Img</div>
           )}
         </td>
-        <td className="px-2 py-1.5 text-xs font-semibold text-text max-w-[200px] truncate">{item.name}</td>
-        <td className="px-2 py-1.5 text-xs text-text-muted max-w-[150px] truncate">
+        <td className="px-2 py-1.5 text-xs font-semibold text-text max-w-50 truncate">{item.name}</td>
+        <td className="px-2 py-1.5 text-xs text-text-muted max-w-37.5 truncate">
           {displayPhone !== '-' ? (
             <a href={`https://wa.me/62${displayPhone.slice(1)}`} target="_blank" rel="noreferrer" className="text-primary hover:underline">
               {displayPhone}
@@ -365,9 +365,9 @@ export function OwnersPage() {
               </div>
               <div>
                 <label className="block text-xs font-semibold text-text mb-2">Foto Owner</label>
-                <ImageUpload 
-                  name="image" 
-                  defaultValue={editItem?.image} 
+                <ImageUpload
+                  name="image"
+                  defaultValue={editItem?.image}
                   label="Tarik atau Pilih Foto"
                   helperText="Maksimal 2 MB (JPG, PNG, WEBP)"
                 />

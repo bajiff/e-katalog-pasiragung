@@ -8,7 +8,7 @@ export function DataTable({ columns, data, renderRow, loading }) {
         <thead>
           <tr className="bg-surface border-b border-border">
             {columns.map((col, idx) => (
-              <th key={idx} className="px-2 py-2 text-xs font-body font-semibold text-text truncate max-w-[200px]">
+              <th key={idx} className="px-2 py-2 text-xs font-body font-semibold text-text truncate max-w-50">
                 {col}
               </th>
             ))}
