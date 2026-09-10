@@ -3,8 +3,8 @@ import heroImage from '../../assets/hero-1.webp';
 
 export const HeroSection = () => {
   return (
-    <section id="hero" className="md:container mx-auto py-16 md:py-24 px-4 bg-background border-b border-border">
-      <div className=" mx-auto max-w-6xl">
+    <section id="hero" className="  py-16 md:py-24 px-4 bg-background border-b border-border">
+      <div className="md:container mx-auto max-w-6xl">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
           {/* Text Content */}
           <div className="order-2 md:order-2 text-center md:text-left mt-8 md:mt-0">

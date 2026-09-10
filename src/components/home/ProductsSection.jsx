@@ -55,8 +55,8 @@ export const ProductsSection = () => {
   }, [search, activeCategory]);
 
   return (
-    <section id="products" className="md:container py-20 px-4 bg-background">
-      <div className=" mx-auto">
+    <section id="products" className="py-20 px-4 bg-background">
+      <div className="md:container mx-auto">
         <SectionHeading
           title="Katalog Produk"
           subtitle="Jelajahi berbagai produk terbaik langsung dari tangan pengrajin."

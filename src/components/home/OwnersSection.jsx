@@ -22,8 +22,8 @@ export const OwnersSection = () => {
   }, [search]);
 
   return (
-    <section id="owners" className="md:container py-20 px-4 bg-surface border-t border-b border-border">
-      <div className=" mx-auto">
+    <section id="owners" className=" py-20 px-4 bg-surface border-t border-b border-border">
+      <div className="md:container mx-auto">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
           <SectionHeading
             title="Pelaku Usaha Kami"

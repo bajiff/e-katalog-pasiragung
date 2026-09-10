@@ -58,8 +58,8 @@ export const Footer = () => {
   };
 
   return (
-    <footer className="md:container bg-surface border-t border-border pt-12 pb-6 mt-auto">
-      <div className="mx-auto px-4">
+    <footer className=" bg-surface border-t border-border pt-12 pb-6 mt-auto">
+      <div className="md:container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 mb-12">
 
           {/* Kolom 1: Info */}
@@ -123,8 +123,18 @@ export const Footer = () => {
             &copy; {new Date().getFullYear()} E-Katalog UMKM Desa Pasiragung. All rights reserved.
           </p>
           <p className="text-xs text-text-muted font-body text-center md:text-right">
-            Dikembangkan oleh Tim KKM
+            <InstagramIcon className="w-5 h-5 text-primary shrink-0 p-0.5" />
+            <a href="https://www.instagram.com/_bajif" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
+              <span>@_bajif</span>
+            </a>
           </p>
+          <p className="text-xs text-text-muted font-body text-center md:text-right">
+            <TikTokIcon className="w-5 h-5 text-primary shrink-0 p-0.5" />
+            <a href="https://www.tiktok.com/@pasiragungmedia" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
+              <span>@pasiragungmedia</span>
+            </a>
+          </p>
+
         </div>
       </div>
     </footer >

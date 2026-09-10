@@ -9,7 +9,7 @@ import {
   BulkActionBar
 } from '../../components/table';
 import { ConfirmModal, ExportMenu } from '../../components/shared';
-import { CheckCircle, XCircle, Trash2 } from 'lucide-react';
+import { CheckCircle, XCircle, Trash2, MoreVertical, Edit, Key } from 'lucide-react';
 import { exportToExcel, exportToCSV, exportToPDF } from '../../utils/exportUtils';
 
 const sortOptions = [
@@ -34,6 +34,13 @@ export function UsersPage() {
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
   const [confirmModal, setConfirmModal] = useState({ isOpen: false });
+  const [openDropdownId, setOpenDropdownId] = useState(null);
+
+  useEffect(() => {
+    const handleClickOutside = () => setOpenDropdownId(null);
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
 
   const requestConfirm = (options) => {
     setConfirmModal({
@@ -158,13 +165,19 @@ export function UsersPage() {
       confirmText: isApprove ? 'Ya, Setujui' : 'Ya, Tolak',
       isDestructive: !isApprove,
       onConfirm: async () => {
-        const { error } = await supabase.from('profiles').update({ status }).eq('id', id);
-        if (error) {
-          console.error("Gagal mengubah status:", error);
-          alert(`Gagal mengubah status user: ${error.message || 'Terjadi kesalahan sistem'}`);
-          return;
+        try {
+          const { data, error } = await supabase.functions.invoke('manage-user', {
+            body: { targetUserId: id, action: status === 'approved' ? 'approve' : 'reject' }
+          });
+          
+          if (error) throw error;
+          if (data?.error) throw new Error(data.error);
+
+          loadData();
+        } catch (err) {
+          console.error("Gagal mengubah status:", err);
+          alert(`Gagal mengubah status user: ${err.message || 'Terjadi kesalahan sistem'}`);
         }
-        loadData();
       }
     });
   };
@@ -214,32 +227,38 @@ export function UsersPage() {
         </td>
         <td className="px-2 py-1.5">
           {!isSuperAdmin && (
-            <div className="flex items-center gap-2">
-              {item.status !== 'approved' && (
-                <button
-                  onClick={() => updateStatus(item.id, 'approved')}
-                  title="Approve"
-                  className="p-1.5 text-green-600 hover:bg-green-50 rounded-sm transition-colors"
-                >
-                  <CheckCircle className="w-3.5 h-3.5" />
-                </button>
-              )}
-              {item.status !== 'rejected' && (
-                <button
-                  onClick={() => updateStatus(item.id, 'rejected')}
-                  title="Reject"
-                  className="p-1.5 text-orange-600 hover:bg-orange-50 rounded-sm transition-colors"
-                >
-                  <XCircle className="w-3.5 h-3.5" />
-                </button>
-              )}
-              <button
-                onClick={() => handleDelete(item)}
-                title="Hapus User"
-                className="p-1.5 text-red-600 hover:bg-red-50 rounded-sm transition-colors"
+            <div className="relative">
+              <button 
+                onClick={(e) => { e.stopPropagation(); setOpenDropdownId(openDropdownId === item.id ? null : item.id); }}
+                className="p-1.5 text-text-muted hover:bg-surface rounded-sm transition-colors flex items-center gap-1 text-xs font-semibold"
               >
-                <Trash2 className="w-3.5 h-3.5" />
+                Aksi <MoreVertical className="w-3.5 h-3.5" />
               </button>
+              
+              {openDropdownId === item.id && (
+                <div className="absolute right-0 top-full mt-1 w-40 bg-background border border-border rounded-sm shadow-md z-50 py-1" onClick={e => e.stopPropagation()}>
+                   <button onClick={() => { setOpenDropdownId(null); alert('Fitur Edit belum diimplementasikan'); }} className="w-full text-left px-3 py-1.5 text-xs text-text hover:bg-surface flex items-center gap-2">
+                     <Edit className="w-3.5 h-3.5 text-blue-600" /> Edit
+                   </button>
+                   {item.status !== 'approved' && (
+                     <button onClick={() => { setOpenDropdownId(null); updateStatus(item.id, 'approved'); }} className="w-full text-left px-3 py-1.5 text-xs text-text hover:bg-surface flex items-center gap-2">
+                       <CheckCircle className="w-3.5 h-3.5 text-green-600" /> Approve
+                     </button>
+                   )}
+                   {item.status !== 'rejected' && (
+                     <button onClick={() => { setOpenDropdownId(null); updateStatus(item.id, 'rejected'); }} className="w-full text-left px-3 py-1.5 text-xs text-text hover:bg-surface flex items-center gap-2">
+                       <XCircle className="w-3.5 h-3.5 text-orange-600" /> Reject
+                     </button>
+                   )}
+                   <button onClick={() => { setOpenDropdownId(null); alert('Fitur Reset Password belum diimplementasikan'); }} className="w-full text-left px-3 py-1.5 text-xs text-text hover:bg-surface flex items-center gap-2">
+                     <Key className="w-3.5 h-3.5 text-purple-600" /> Reset Password
+                   </button>
+                   <div className="h-px bg-border my-1"></div>
+                   <button onClick={() => { setOpenDropdownId(null); handleDelete(item); }} className="w-full text-left px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 flex items-center gap-2">
+                     <Trash2 className="w-3.5 h-3.5" /> Hapus User
+                   </button>
+                </div>
+              )}
             </div>
           )}
         </td>
