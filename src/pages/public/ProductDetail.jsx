@@ -45,9 +45,9 @@ export function ProductDetail() {
     if (waNumber.startsWith('0')) waNumber = '62' + waNumber.slice(1);
     else if (waNumber.startsWith('8')) waNumber = '62' + waNumber;
   }
-  
+
   const waText = `Halo ${product.owners?.name || 'Bapak/Ibu'}! Saya tertarik order menu yang ada di website. Berikut detail pesanan saya:\n\nMenu & Jumlah: ${product.name}\nNama Penerima:\nNomor HP:\nAlamat Kirim:\nTanggal & Jam Pengantaran:\nCatatan Khusus: (Misal: pedas/tidak pakai bawang)\nMau Transfer Via Apa: `;
-  const waLink = waNumber 
+  const waLink = waNumber
     ? `https://wa.me/${waNumber}?text=${encodeURIComponent(waText)}`
     : '#';
 
@@ -70,7 +70,7 @@ export function ProductDetail() {
         {/* Detail Produk */}
         <div className="flex flex-col">
           <div className="mb-6">
-            <p className="text-sm font-bold text-primary mb-2 uppercase tracking-wide">{product.categories?.name}</p>
+            <p className="text-sm font-bold text-primary mb-2 uppercase tracking-wide">{product.categories?.name || 'Tanpa Kategori'}</p>
             <h1 className="text-3xl md:text-4xl font-display font-bold text-text leading-tight mb-4">{product.name}</h1>
             <p className="text-2xl font-bold text-text">Rp {product.price?.toLocaleString('id-ID')}</p>
           </div>
@@ -80,8 +80,60 @@ export function ProductDetail() {
             <p className="whitespace-pre-wrap">{product.description || 'Tidak ada deskripsi.'}</p>
           </div>
 
-          <div className="mb-8">
+          <div className="mb-6">
             <p className="text-sm text-text-muted mb-1">Stok Tersedia: <span className="font-bold text-text">{product.stock}</span></p>
+          </div>
+
+          {/* Informasi Tambahan */}
+          <div className="grid grid-cols-2 gap-4 mb-8 bg-surface p-4 rounded-md border border-border">
+
+            <div className="col-span-2 sm:col-span-1">
+              <p className="text-xs text-text-muted mb-1">Kategori</p>
+              <p className="text-sm font-bold text-text">{product.categories?.name || 'Tanpa Kategori'}</p>
+            </div>
+
+            {product.capacity && product.unit && (
+              <div className="col-span-2 sm:col-span-1">
+                <p className="text-xs text-text-muted mb-1">Ukuran / Berat</p>
+                <p className="text-sm font-bold text-text">{product.capacity} {product.unit}</p>
+              </div>
+            )}
+
+            <div className="col-span-2">
+              <p className="text-xs text-text-muted mb-1">Varian Rasa</p>
+              {product.flavor_variants && product.flavor_variants.length > 0 ? (
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {product.flavor_variants.map((v, i) => (
+                    <span key={i} className="text-xs px-2 py-1 bg-primary/10 text-primary font-semibold rounded-sm border border-primary/20">{v}</span>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm font-bold text-text">-</p>
+              )}
+            </div>
+
+            <div className="col-span-2">
+              <p className="text-xs text-text-muted mb-1">Komposisi</p>
+              {product.compositions && product.compositions.length > 0 ? (
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {product.compositions.map((v, i) => (
+                    <span key={i} className="text-xs px-2 py-1 bg-primary/10 text-primary font-semibold rounded-sm border border-primary/20">{v}</span>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm font-bold text-text">-</p>
+              )}
+            </div>
+
+            <div className="col-span-2 sm:col-span-1">
+              <p className="text-xs text-text-muted mb-1">NIB</p>
+              <p className="text-sm font-bold text-text">{product.nib ? product.nib : '-'}</p>
+            </div>
+
+            <div className="col-span-2 sm:col-span-1">
+              <p className="text-xs text-text-muted mb-1">Sertifikat Halal</p>
+              <p className="text-sm font-bold text-text">{product.halal_certificate ? `ID${product.halal_certificate}` : '-'}</p>
+            </div>
           </div>
 
           {/* Owner Info & CTA */}
