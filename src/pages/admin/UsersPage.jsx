@@ -96,7 +96,7 @@ export function UsersPage() {
   const handleResetPassword = (item) => {
     requestConfirm({
       title: 'Konfirmasi Reset Password',
-      message: `Apakah Anda yakin ingin mereset password akun ${item.email}? Sistem akan mengirimkan email pemulihan password ke alamat tersebut.`,
+      message: `Apakah Anda yakin ingin mereset password akun ${item.email}? Sistem akan mengirimkan email pemulihan password ke alamat email tersebut.`,
       confirmText: 'Ya, Reset Password',
       onConfirm: async () => {
         try {

@@ -61,7 +61,7 @@ export const Navbar = () => {
   ];
 
   const bgColor = isScrolled ? 'bg-background shadow-sm border-b border-border' : 'bg-transparent';
-  const textColor = isScrolled ? 'text-text' : 'text-black';
+  const textColor = isScrolled ? 'text-text' : 'text-white';
   const loginBg = isScrolled ? 'bg-primary text-on-primary' : 'bg-black text-green-500 hover:bg-primary hover:text-on-primary';
 
   return (
@@ -88,7 +88,7 @@ export const Navbar = () => {
             ))}
           </div>
 
-          <div className="w-px h-6 bg-border mx-2"></div>
+          <div className={`w-px h-6 mx-2 ${isScrolled ? 'bg-black' : 'bg-white'}`}></div>
 
           <Link
             to="/login"
