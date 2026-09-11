@@ -17,6 +17,12 @@ export const AuthProvider = ({ children }) => {
     setProfile(data)
   }
 
+  const refreshProfile = async () => {
+    if (user?.id) {
+      await fetchProfile(user.id)
+    }
+  }
+
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       setUser(session?.user ?? null)
@@ -47,7 +53,7 @@ export const AuthProvider = ({ children }) => {
   const signOut = () => supabase.auth.signOut()
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, signUp, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, profile, loading, signUp, signIn, signOut, refreshProfile }}>
       {children}
     </AuthContext.Provider>
   )

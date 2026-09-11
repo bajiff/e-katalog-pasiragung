@@ -29,7 +29,7 @@ export function Login() {
       // 2. TAHAN NAVIGASI! Ambil data profil dari database terlebih dahulu
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
-        .select('status')
+        .select('status, must_change_password')
         .eq('id', authData.user.id)
         .single();
 

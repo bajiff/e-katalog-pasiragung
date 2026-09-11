@@ -7,7 +7,7 @@ import logo from '../../assets/logo.svg';
 
 export function ChangePassword() {
   const navigate = useNavigate();
-  const { user, profile } = useAuth();
+  const { user, profile, loading, refreshProfile } = useAuth();
 
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -18,6 +18,13 @@ export function ChangePassword() {
   const [success, setSuccess] = useState(false);
   // Tandai apakah sesi ini berasal dari link recovery email
   const [isRecoverySession, setIsRecoverySession] = useState(false);
+
+  // GUARD: Jika profile sudah ter-load dan must_change_password bukan true, redirect keluar
+  useEffect(() => {
+    if (!loading && profile && !profile.must_change_password) {
+      navigate('/admin/dashboard', { replace: true });
+    }
+  }, [loading, profile, navigate]);
 
   useEffect(() => {
     // Tambahan A: Listener untuk event PASSWORD_RECOVERY dari Supabase
@@ -73,9 +80,12 @@ export function ChangePassword() {
         }
       }
 
+      // 3. Refresh profile di AuthContext agar guard di AdminLayout membaca state terbaru
+      await refreshProfile();
+
       setSuccess(true);
 
-      // 3. Redirect ke dashboard setelah 2 detik
+      // 4. Redirect ke dashboard setelah 2 detik
       setTimeout(() => {
         navigate('/admin/dashboard', { replace: true });
       }, 2000);
@@ -87,6 +97,15 @@ export function ChangePassword() {
       setLoading(false);
     }
   };
+
+  // Tampilkan loading saat auth sedang di-load
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-surface flex items-center justify-center">
+        <p className="text-sm text-text-muted">Memuat...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-surface flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
