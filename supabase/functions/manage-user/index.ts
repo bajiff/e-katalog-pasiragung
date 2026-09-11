@@ -104,6 +104,40 @@ Deno.serve(async (req: Request) => {
         status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
       })
 
+    } else if (action === 'delete-self') {
+      // Delete own account — only the logged-in user can delete themselves
+      // Block super_admin from deleting themselves
+      if (profile?.role === 'super_admin') {
+        return new Response(JSON.stringify({ error: 'Forbidden: super_admin cannot delete their own account' }), { 
+          status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        })
+      }
+      
+      // Ensure targetUserId matches the authenticated user
+      if (targetUserId !== user.id) {
+        return new Response(JSON.stringify({ error: 'Forbidden: can only delete own account' }), { 
+          status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        })
+      }
+      
+      // Delete from profiles table first (cascade or manual)
+      const { error: profileDeleteError } = await supabaseAdmin.from('profiles').delete().eq('id', targetUserId)
+      
+      if (profileDeleteError) {
+        throw new Error(`Failed to delete profile: ${profileDeleteError.message}`)
+      }
+
+      // Delete from auth.users
+      const { error: authDeleteError } = await supabaseAdmin.auth.admin.deleteUser(targetUserId)
+
+      if (authDeleteError) {
+        throw new Error(`Failed to delete auth user: ${authDeleteError.message}`)
+      }
+      
+      return new Response(JSON.stringify({ success: true, message: 'Account deleted successfully' }), { 
+        status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      })
+
     } else {
       return new Response(JSON.stringify({ error: 'Bad Request: Invalid action' }), { 
         status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
