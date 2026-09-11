@@ -93,6 +93,36 @@ export function UsersPage() {
     });
   };
 
+  const handleResetPassword = (item) => {
+    requestConfirm({
+      title: 'Konfirmasi Reset Password',
+      message: `Apakah Anda yakin ingin mereset password akun ${item.email}? Sistem akan mengirimkan email pemulihan password ke alamat tersebut.`,
+      confirmText: 'Ya, Reset Password',
+      onConfirm: async () => {
+        try {
+          // 1. Send password reset email
+          const { error: resetError } = await supabase.auth.resetPasswordForEmail(item.email, {
+            redirectTo: `${window.location.origin}/admin/change-password`,
+          });
+          if (resetError) throw resetError;
+
+          // 2. Set must_change_password to true in public.profiles
+          const { error: updateError } = await supabase
+            .from('profiles')
+            .update({ must_change_password: true })
+            .eq('id', item.id);
+          if (updateError) throw updateError;
+
+          alert(`Email reset password berhasil dikirim ke ${item.email}`);
+          loadData();
+        } catch (err) {
+          console.error("Gagal reset password:", err);
+          alert(`Gagal mereset password: ${err.message || 'Terjadi kesalahan sistem'}`);
+        }
+      }
+    });
+  };
+
   const loadData = async () => {
     setLoading(true);
     const { data: result, count } = await fetchData();
@@ -290,7 +320,7 @@ export function UsersPage() {
                       <XCircle className="w-3.5 h-3.5 text-orange-600" /> Reject
                     </button>
                   )}
-                  <button onClick={() => { setOpenDropdownId(null); alert('Fitur Reset Password belum diimplementasikan'); }} className="w-full text-left px-3 py-1.5 text-xs text-text hover:bg-surface flex items-center gap-2">
+                  <button onClick={() => { setOpenDropdownId(null); handleResetPassword(item); }} className="w-full text-left px-3 py-1.5 text-xs text-text hover:bg-surface flex items-center gap-2">
                     <Key className="w-3.5 h-3.5 text-purple-600" /> Reset Password
                   </button>
                   <div className="h-px bg-border my-1"></div>

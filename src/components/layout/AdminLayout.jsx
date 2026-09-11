@@ -1,5 +1,5 @@
 import React from 'react';
-import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import { Outlet, Link, useLocation, useNavigate, Navigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { LayoutDashboard, Package, Grid, Users, UserCog, User, LogOut, Menu, X } from 'lucide-react';
 import { ConfirmModal } from '../shared';
@@ -11,6 +11,13 @@ export function AdminLayout() {
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = React.useState(false);
+
+  // Guard: Jika must_change_password = true, paksa ke halaman ganti password
+  // Kecuali user memang sudah di halaman itu (hindari infinite redirect)
+  const isChangingPassword = location.pathname === '/admin/change-password';
+  if (profile?.must_change_password && !isChangingPassword) {
+    return <Navigate to="/admin/change-password" replace />;
+  }
 
   const handleLogout = async () => {
     setIsLogoutModalOpen(false);

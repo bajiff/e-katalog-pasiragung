@@ -39,7 +39,12 @@ export function Login() {
 
       // 3. Validasi status sebelum berpindah rute
       if (profileData.status === 'approved') {
-        navigate('/admin/dashboard');
+        // Cek apakah admin diwajibkan ganti password
+        if (profileData.must_change_password) {
+          navigate('/admin/change-password');
+        } else {
+          navigate('/admin/dashboard');
+        }
       } else {
         // Jika belum disetujui, batalkan sesi dan munculkan pesan error
         await supabase.auth.signOut();

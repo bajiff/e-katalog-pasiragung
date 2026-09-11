@@ -14,6 +14,7 @@ import {
   OwnersPage,
   ProfilePage,
   UsersPage,
+  ChangePassword,
 } from './pages'
 
 const App = () => {
@@ -42,6 +43,7 @@ const App = () => {
 
           {/* Khusus Super Admin */}
           <Route path="users" element={<SuperAdminRoute><UsersPage /></SuperAdminRoute>} />
+          <Route path="change-password" element={<ChangePassword />} />
         </Route>
 
         {/* Fallback 404 */}
