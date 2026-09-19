@@ -13,7 +13,7 @@ export function ChangePassword() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   // Tandai apakah sesi ini berasal dari link recovery email
@@ -57,7 +57,7 @@ export function ChangePassword() {
       return;
     }
 
-    setLoading(true);
+    setIsSubmitting(true);
 
     try {
       // 1. Update password di Supabase Auth
@@ -94,7 +94,7 @@ export function ChangePassword() {
       console.error('Gagal mengganti password:', err);
       setError(err.message || 'Terjadi kesalahan. Silakan coba lagi.');
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -196,10 +196,10 @@ export function ChangePassword() {
 
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={isSubmitting}
                   className="w-full flex justify-center py-2 px-4 border border-transparent rounded-sm text-sm font-semibold text-on-primary bg-primary hover:opacity-90 focus:outline-none transition-opacity disabled:opacity-50"
                 >
-                  {loading ? 'Menyimpan...' : 'Simpan Password Baru'}
+                  {isSubmitting ? 'Menyimpan...' : 'Simpan Password Baru'}
                 </button>
               </form>
             </>
